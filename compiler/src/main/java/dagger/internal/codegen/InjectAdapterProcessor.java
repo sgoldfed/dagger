@@ -59,6 +59,7 @@ import static dagger.internal.loaders.GeneratedAdapters.STATIC_INJECTION_SUFFIX;
 import static java.lang.reflect.Modifier.FINAL;
 import static java.lang.reflect.Modifier.PRIVATE;
 import static java.lang.reflect.Modifier.PUBLIC;
+import javax.lang.model.util.Types;
 
 /**
  * Generates an implementation of {@link Binding} that injects the
@@ -263,6 +264,7 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
           fieldName(disambiguateFields, field), PRIVATE);
     }
     if (supertype != null) {
+      writeInjectAdapter(((TypeElement)processingEnv.getTypeUtils().asElement(supertype)), null, null);
       writer.emitField(JavaWriter.type(Binding.class,
           rawTypeToString(supertype, '.')), "supertype", PRIVATE);
     }
