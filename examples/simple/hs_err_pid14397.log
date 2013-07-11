@@ -1,0 +1,710 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0xf6eac223, pid=14397, tid=2916608832
+#
+# JRE version: 7.0
+# Java VM: OpenJDK Server VM (22.0-b10 mixed mode linux-x86 )
+# Problematic frame:
+# V  [libjvm.so+0x8e6223]  UNICODE::utf8_length(unsigned short*, int)+0x23
+#
+# Failed to write core dump. Core dumps have been disabled. To enable core dumping, try "ulimit -c unlimited" before starting Java again
+#
+# If you would like to submit a bug report, please visit:
+#   http://b.corp.google.com/createIssue?component=32554
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0xacdc9000):  JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_in_vm, id=14421, stack(0xadd2e000,0xadd7f000)]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=1 (SEGV_MAPERR), si_addr=0x0000000c
+
+Registers:
+EAX=0x00000000, EBX=0xf6f6dc9c, ECX=0x00000004, EDX=0x00000000
+ESP=0xadd7dce0, EBP=0xadd7dce8, ESI=0x00000000, EDI=0x0000000c
+EIP=0xf6eac223, EFLAGS=0x00010202, ERR=0x00000004, CR2=0x0000000c
+TRAPNO=0x0000000e
+
+Top of Stack: (sp=0xadd7dce0)
+0xadd7dce0:   00000000 acdc9000 add7dd08 f6ad265f
+0xadd7dcf0:   0000000c 00000004 add7dd58 f63f3267
+0xadd7dd00:   f6f6dc9c acdc9000 add7dd58 f6af3b52
+0xadd7dd10:   dd35c568 ac600908 ffffffff f63ff390
+0xadd7dd20:   ac803780 add7df40 dd35c568 f63e3f5a
+0xadd7dd30:   acdc9000 00000000 add7dd58 00000000
+0xadd7dd40:   ac8027d0 00000008 f63f311b f63ff390
+0xadd7dd50:   acdc9150 ac803780 add7dd98 f63cf9e0 
+
+Instructions: (pc=0xf6eac223)
+0xf6eac203:   89 e5 31 c0 8b 4d 0c 57 8b 7d 08 56 85 c9 7f 10
+0xf6eac213:   eb 31 8d 76 00 83 c0 01 83 c2 01 3b 55 0c 74 23
+0xf6eac223:   0f b7 0c 57 8d 71 ff 66 83 fe 7e 76 e8 8d 70 02
+0xf6eac233:   83 c0 03 66 81 f9 ff 07 0f 46 c6 83 c2 01 3b 55 
+
+Register to memory mapping:
+
+EAX=0x00000000 is an unknown value
+EBX=0xf6f6dc9c: <offset 0x9a7c9c> in /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/server/libjvm.so at 0xf65c6000
+ECX=0x00000004 is an unknown value
+EDX=0x00000000 is an unknown value
+ESP=0xadd7dce0 is pointing into the stack for thread: 0xacdc9000
+EBP=0xadd7dce8 is pointing into the stack for thread: 0xacdc9000
+ESI=0x00000000 is an unknown value
+EDI=0x0000000c is an unknown value
+
+
+Stack: [0xadd2e000,0xadd7f000],  sp=0xadd7dce0,  free space=319k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x8e6223]  UNICODE::utf8_length(unsigned short*, int)+0x23
+V  [libjvm.so+0x50c65f]  java_lang_String::utf8_length(oopDesc*)+0x4f
+V  [libjvm.so+0x52db52]  jni_GetStringUTFChars+0xc2
+C  [libjdwp.so+0x99e0]  value+0x90
+C  [libjdwp.so+0x1324f]  debugLoop_run+0x2cf
+C  [libjdwp.so+0x29c1f]  connectionInitiated+0xbf
+C  [libjdwp.so+0x29c60]  attachThread+0x30
+V  [libjvm.so+0x5e4d15]  JvmtiAgentThread::start_function_wrapper(JavaThread*, Thread*)+0xa5
+V  [libjvm.so+0x8b3242]  JavaThread::run()+0x262
+V  [libjvm.so+0x742725]  java_start(Thread*)+0x215
+C  [libpthread.so.0+0x609e]  start_thread+0xce
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0xacdd1400 JavaThread "Service Thread" daemon [_thread_blocked, id=14430, stack(0xad72e000,0xad77f000)]
+  0xacdcf400 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=14429, stack(0xac27f000,0xac300000)]
+  0xacdce000 JavaThread "C2 CompilerThread0" daemon [_thread_blocked, id=14428, stack(0xac47f000,0xac500000)]
+  0xac800c00 JavaThread "JDWP Command Reader" daemon [_thread_in_native, id=14425, stack(0xad92e000,0xad97f000)]
+  0xacdcb400 JavaThread "JDWP Event Helper Thread" daemon [_thread_blocked, id=14424, stack(0xadb2e000,0xadb7f000)]
+=>0xacdc9000 JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_in_vm, id=14421, stack(0xadd2e000,0xadd7f000)]
+  0xacdc0400 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=14419, stack(0xadf2e000,0xadf7f000)]
+  0xacd78c00 JavaThread "Finalizer" daemon [_thread_blocked, id=14417, stack(0xae12e000,0xae17f000)]
+  0xacd77000 JavaThread "Reference Handler" daemon [_thread_blocked, id=14416, stack(0xacc2e000,0xacc7f000)]
+  0xf6431000 JavaThread "main" [_thread_blocked, id=14403, stack(0xf6575000,0xf65c6000)]
+
+Other Threads:
+  0xacd71400 VMThread [stack: 0xacc7f000,0xacd00000] [id=14415]
+  0xacdd3400 WatcherThread [stack: 0xac07f000,0xac100000] [id=14431]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen      total 19136K, used 1645K [0xdd210000, 0xde760000, 0xf2760000)
+  eden space 16448K, 10% used [0xdd210000,0xdd3ab760,0xde220000)
+  from space 2688K, 0% used [0xde4c0000,0xde4c0000,0xde760000)
+  to   space 2688K, 0% used [0xde220000,0xde220000,0xde4c0000)
+ PSOldGen        total 43712K, used 0K [0xb2760000, 0xb5210000, 0xdd210000)
+  object space 43712K, 0% used [0xb2760000,0xb2760000,0xb5210000)
+ PSPermGen       total 16384K, used 2212K [0xae760000, 0xaf760000, 0xb2760000)
+  object space 16384K, 13% used [0xae760000,0xae989140,0xaf760000)
+
+Code Cache  [0xf2821000, 0xf2a61000, 0xf5821000)
+ total_blobs=111 nmethods=5 adapters=66 free_code_cache=48849Kb largest_free_block=50001984
+
+Dynamic libraries:
+08048000-0804b000 r-xp 00000000 fc:00 2255265                            /usr/local/buildtools/java/jdk7-google-v5-32/bin/java
+0804b000-0804c000 rw-p 00003000 fc:00 2255265                            /usr/local/buildtools/java/jdk7-google-v5-32/bin/java
+09923000-09944000 rw-p 00000000 00:00 0                                  [heap]
+abc00000-abc4e000 rw-p 00000000 00:00 0 
+abc4e000-abd00000 ---p 00000000 00:00 0 
+abe00000-abe21000 rw-p 00000000 00:00 0 
+abe21000-abf00000 ---p 00000000 00:00 0 
+abf00000-abf21000 rw-p 00000000 00:00 0 
+abf21000-ac000000 ---p 00000000 00:00 0 
+ac07f000-ac080000 ---p 00000000 00:00 0 
+ac080000-ac100000 rw-p 00000000 00:00 0 
+ac100000-ac18f000 rw-p 00000000 00:00 0 
+ac18f000-ac200000 ---p 00000000 00:00 0 
+ac27f000-ac282000 ---p 00000000 00:00 0 
+ac282000-ac300000 rw-p 00000000 00:00 0 
+ac300000-ac36e000 rw-p 00000000 00:00 0 
+ac36e000-ac400000 ---p 00000000 00:00 0 
+ac47f000-ac482000 ---p 00000000 00:00 0 
+ac482000-ac500000 rw-p 00000000 00:00 0 
+ac500000-ac521000 rw-p 00000000 00:00 0 
+ac521000-ac600000 ---p 00000000 00:00 0 
+ac600000-ac621000 rw-p 00000000 00:00 0 
+ac621000-ac700000 ---p 00000000 00:00 0 
+ac700000-ac721000 rw-p 00000000 00:00 0 
+ac721000-ac800000 ---p 00000000 00:00 0 
+ac800000-ac821000 rw-p 00000000 00:00 0 
+ac821000-ac900000 ---p 00000000 00:00 0 
+ac900000-ac921000 rw-p 00000000 00:00 0 
+ac921000-aca00000 ---p 00000000 00:00 0 
+aca00000-aca21000 rw-p 00000000 00:00 0 
+aca21000-acb00000 ---p 00000000 00:00 0 
+acb00000-acb21000 rw-p 00000000 00:00 0 
+acb21000-acc00000 ---p 00000000 00:00 0 
+acc2e000-acc31000 ---p 00000000 00:00 0 
+acc31000-acc7f000 rw-p 00000000 00:00 0 
+acc7f000-acc80000 ---p 00000000 00:00 0 
+acc80000-acd00000 rw-p 00000000 00:00 0 
+acd00000-acdfa000 rw-p 00000000 00:00 0 
+acdfa000-ace00000 ---p 00000000 00:00 0 
+ace08000-ace51000 rw-p 00000000 00:00 0 
+ace51000-ad000000 r--s 03826000 fc:00 2254965                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/rt.jar
+ad000000-ad021000 rw-p 00000000 00:00 0 
+ad021000-ad100000 ---p 00000000 00:00 0 
+ad17f000-ad180000 ---p 00000000 00:00 0 
+ad180000-ad200000 rw-p 00000000 00:00 0 
+ad200000-ad221000 rw-p 00000000 00:00 0 
+ad221000-ad300000 ---p 00000000 00:00 0 
+ad37f000-ad380000 ---p 00000000 00:00 0 
+ad380000-ad400000 rw-p 00000000 00:00 0 
+ad400000-ad421000 rw-p 00000000 00:00 0 
+ad421000-ad500000 ---p 00000000 00:00 0 
+ad57f000-ad580000 ---p 00000000 00:00 0 
+ad580000-ad600000 rw-p 00000000 00:00 0 
+ad600000-ad621000 rw-p 00000000 00:00 0 
+ad621000-ad700000 ---p 00000000 00:00 0 
+ad72e000-ad731000 ---p 00000000 00:00 0 
+ad731000-ad77f000 rw-p 00000000 00:00 0 
+ad77f000-ad780000 ---p 00000000 00:00 0 
+ad780000-ad800000 rw-p 00000000 00:00 0 
+ad800000-ad821000 rw-p 00000000 00:00 0 
+ad821000-ad900000 ---p 00000000 00:00 0 
+ad92e000-ad931000 ---p 00000000 00:00 0 
+ad931000-ad97f000 rw-p 00000000 00:00 0 
+ad97f000-ad980000 ---p 00000000 00:00 0 
+ad980000-ada00000 rw-p 00000000 00:00 0 
+ada00000-ada21000 rw-p 00000000 00:00 0 
+ada21000-adb00000 ---p 00000000 00:00 0 
+adb2e000-adb31000 ---p 00000000 00:00 0 
+adb31000-adb7f000 rw-p 00000000 00:00 0 
+adb7f000-adb80000 ---p 00000000 00:00 0 
+adb80000-adc00000 rw-p 00000000 00:00 0 
+adc00000-adc21000 rw-p 00000000 00:00 0 
+adc21000-add00000 ---p 00000000 00:00 0 
+add2e000-add31000 ---p 00000000 00:00 0 
+add31000-add7f000 rw-p 00000000 00:00 0 
+add7f000-add80000 ---p 00000000 00:00 0 
+add80000-ade00000 rw-p 00000000 00:00 0 
+ade00000-ade21000 rw-p 00000000 00:00 0 
+ade21000-adf00000 ---p 00000000 00:00 0 
+adf2e000-adf31000 ---p 00000000 00:00 0 
+adf31000-adf7f000 rw-p 00000000 00:00 0 
+adf7f000-adf80000 ---p 00000000 00:00 0 
+adf80000-ae000000 rw-p 00000000 00:00 0 
+ae000000-ae021000 rw-p 00000000 00:00 0 
+ae021000-ae100000 ---p 00000000 00:00 0 
+ae12e000-ae131000 ---p 00000000 00:00 0 
+ae131000-ae17f000 rw-p 00000000 00:00 0 
+ae17f000-ae180000 ---p 00000000 00:00 0 
+ae180000-ae200000 rw-p 00000000 00:00 0 
+ae200000-ae221000 rw-p 00000000 00:00 0 
+ae221000-ae300000 ---p 00000000 00:00 0 
+ae341000-ae342000 r--s 00002000 fc:01 5902935                            /usr/local/google/home/sgoldfeder/.m2/repository/com/squareup/javawriter/2.0.1/javawriter-2.0.1.jar
+ae342000-ae344000 r--s 0000d000 fc:01 5901403                            /usr/local/google/home/sgoldfeder/.m2/repository/com/squareup/dagger/dagger-compiler/1.0.2-SNAPSHOT/dagger-compiler-1.0.2-SNAPSHOT.jar
+ae344000-ae347000 r-xp 00000000 fc:00 2254737                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libdt_socket.so
+ae347000-ae348000 rw-p 00003000 fc:00 2254737                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libdt_socket.so
+ae348000-ae349000 ---p 00000000 00:00 0 
+ae349000-ae3d1000 rw-p 00000000 00:00 0 
+ae3d1000-ae3e9000 rw-p 00000000 00:00 0 
+ae3e9000-ae3ff000 rw-p 00000000 00:00 0 
+ae3ff000-ae53f000 rw-p 00000000 00:00 0 
+ae53f000-ae547000 rw-p 00000000 00:00 0 
+ae547000-ae55f000 rw-p 00000000 00:00 0 
+ae55f000-ae575000 rw-p 00000000 00:00 0 
+ae575000-ae6b4000 rw-p 00000000 00:00 0 
+ae6b4000-ae6bf000 rw-p 00000000 00:00 0 
+ae6bf000-ae75f000 rw-p 00000000 00:00 0 
+ae75f000-af760000 rw-p 00000000 00:00 0 
+af760000-b2760000 rw-p 00000000 00:00 0 
+b2760000-b5210000 rw-p 00000000 00:00 0 
+b5210000-dd210000 rw-p 00000000 00:00 0 
+dd210000-de760000 rw-p 00000000 00:00 0 
+de760000-f2760000 rw-p 00000000 00:00 0 
+f2761000-f276a000 rw-p 00000000 00:00 0 
+f276a000-f2821000 rw-p 00000000 00:00 0 
+f2821000-f2a61000 rwxp 00000000 00:00 0 
+f2a61000-f5821000 rw-p 00000000 00:00 0 
+f5821000-f5838000 r-xp 00000000 fc:00 2254830                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libzip.so
+f5838000-f5839000 rw-p 00016000 fc:00 2254830                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libzip.so
+f5839000-f583a000 ---p 00000000 00:00 0 
+f583a000-f60fa000 rw-p 00000000 00:00 0 
+f60fa000-f61d8000 r-xp 00000000 fc:00 2254881                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjvmstatagent.so
+f61d8000-f6222000 rw-p 000dd000 fc:00 2254881                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjvmstatagent.so
+f6222000-f6257000 rw-p 00000000 00:00 0 
+f6257000-f6296000 r--p 00000000 fc:00 1320946                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_CTYPE
+f6296000-f63c6000 r--p 00000000 fc:00 1320952                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_COLLATE
+f63c6000-f63ff000 r-xp 00000000 fc:00 2254795                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjdwp.so
+f63ff000-f6400000 rw-p 00038000 fc:00 2254795                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjdwp.so
+f6400000-f64fe000 rw-p 00000000 00:00 0 
+f64fe000-f6500000 ---p 00000000 00:00 0 
+f6500000-f6508000 rw-s 00000000 fc:00 1050747                            /tmp/hsperfdata_sgoldfeder/14397
+f6508000-f650b000 r-xp 00000000 fc:00 1454637                            /usr/grte/v3/lib/libnss_cache-2.15.so
+f650b000-f650c000 r--p 00002000 fc:00 1454637                            /usr/grte/v3/lib/libnss_cache-2.15.so
+f650c000-f650d000 rw-p 00003000 fc:00 1454637                            /usr/grte/v3/lib/libnss_cache-2.15.so
+f650d000-f6518000 r-xp 00000000 fc:00 1454612                            /usr/grte/v3/lib/libnss_files-2.15.so
+f6518000-f6519000 r--p 0000a000 fc:00 1454612                            /usr/grte/v3/lib/libnss_files-2.15.so
+f6519000-f651a000 rw-p 0000b000 fc:00 1454612                            /usr/grte/v3/lib/libnss_files-2.15.so
+f651a000-f651b000 r--s 00000000 fc:01 27001069                           /usr/local/google/home/sgoldfeder/.m2/repository/javax/inject/javax.inject/1/javax.inject-1.jar
+f651b000-f651c000 r--s 0000b000 fc:01 4851932                            /usr/local/google/home/sgoldfeder/.m2/repository/com/squareup/dagger/dagger/1.0.2-SNAPSHOT/dagger-1.0.2-SNAPSHOT.jar
+f651c000-f652c000 rw-p 00000000 00:00 0 
+f652c000-f652d000 r--p 00000000 fc:00 1320949                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_NUMERIC
+f652d000-f652e000 r--p 00000000 fc:00 1320953                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_TIME
+f652e000-f652f000 r--p 00000000 fc:00 1320955                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_MONETARY
+f652f000-f6530000 r--p 00000000 fc:00 1320945                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_MESSAGES/SYS_LC_MESSAGES
+f6530000-f6531000 r--p 00000000 fc:00 1320950                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_PAPER
+f6531000-f6532000 r--p 00000000 fc:00 1320951                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_NAME
+f6532000-f6533000 r--p 00000000 fc:00 1320956                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_ADDRESS
+f6533000-f6534000 r--p 00000000 fc:00 1320947                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_TELEPHONE
+f6534000-f6536000 r-xp 00000000 fc:00 2254818                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libnpt.so
+f6536000-f6537000 rw-p 00002000 fc:00 2254818                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libnpt.so
+f6537000-f6559000 r-xp 00000000 fc:00 2254885                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjava.so
+f6559000-f655a000 rw-p 00022000 fc:00 2254885                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libjava.so
+f655a000-f6568000 r-xp 00000000 fc:00 2254834                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libverify.so
+f6568000-f6569000 rw-p 0000d000 fc:00 2254834                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/libverify.so
+f6569000-f6571000 r-xp 00000000 fc:00 1454604                            /usr/grte/v3/lib/librt-2.15.so
+f6571000-f6572000 r--p 00007000 fc:00 1454604                            /usr/grte/v3/lib/librt-2.15.so
+f6572000-f6573000 rw-p 00008000 fc:00 1454604                            /usr/grte/v3/lib/librt-2.15.so
+f6573000-f6574000 r--p 00000000 fc:00 1320948                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_MEASUREMENT
+f6574000-f6575000 r--p 00000000 fc:00 1320954                            /usr/grte/v3/lib64/locale/en_US.utf8/LC_IDENTIFICATION
+f6575000-f6578000 ---p 00000000 00:00 0 
+f6578000-f65c6000 rw-p 00000000 00:00 0 
+f65c6000-f6f6b000 r-xp 00000000 fc:00 2254865                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/server/libjvm.so
+f6f6b000-f6fbb000 rw-p 009a5000 fc:00 2254865                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/server/libjvm.so
+f6fbb000-f73de000 rw-p 00000000 00:00 0 
+f73de000-f73fa000 r-xp 00000000 fc:00 1311686                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libgcc_s.so.1
+f73fa000-f73fb000 rw-p 0001c000 fc:00 1311686                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libgcc_s.so.1
+f73fb000-f7424000 r-xp 00000000 fc:00 1454639                            /usr/grte/v3/lib/libm-2.15.so
+f7424000-f7425000 r--p 00028000 fc:00 1454639                            /usr/grte/v3/lib/libm-2.15.so
+f7425000-f7426000 rw-p 00029000 fc:00 1454639                            /usr/grte/v3/lib/libm-2.15.so
+f7426000-f750d000 r-xp 00000000 fc:00 1311685                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libstdc++.so.6.0.17
+f750d000-f750e000 ---p 000e7000 fc:00 1311685                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libstdc++.so.6.0.17
+f750e000-f7512000 r--p 000e7000 fc:00 1311685                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libstdc++.so.6.0.17
+f7512000-f7514000 rw-p 000eb000 fc:00 1311685                            /usr/crosstool/v16/i686-grtev3-linux-gnu/lib/libstdc++.so.6.0.17
+f7514000-f751a000 rw-p 00000000 00:00 0 
+f751a000-f752d000 r-xp 00000000 fc:00 2254783                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/jli/libjli.so
+f752d000-f752e000 rw-p 00012000 fc:00 2254783                            /usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/jli/libjli.so
+f752e000-f7530000 rw-p 00000000 00:00 0 
+f7530000-f76e7000 r-xp 00000000 fc:00 1454642                            /usr/grte/v3/lib/libc-2.15.so
+f76e7000-f76e9000 r--p 001b7000 fc:00 1454642                            /usr/grte/v3/lib/libc-2.15.so
+f76e9000-f76ea000 rw-p 001b9000 fc:00 1454642                            /usr/grte/v3/lib/libc-2.15.so
+f76ea000-f76ed000 rw-p 00000000 00:00 0 
+f76ed000-f76f0000 r-xp 00000000 fc:00 1454606                            /usr/grte/v3/lib/libdl-2.15.so
+f76f0000-f76f1000 r--p 00002000 fc:00 1454606                            /usr/grte/v3/lib/libdl-2.15.so
+f76f1000-f76f2000 rw-p 00003000 fc:00 1454606                            /usr/grte/v3/lib/libdl-2.15.so
+f76f2000-f7709000 r-xp 00000000 fc:00 1454640                            /usr/grte/v3/lib/libpthread-2.15.so
+f7709000-f770a000 ---p 00017000 fc:00 1454640                            /usr/grte/v3/lib/libpthread-2.15.so
+f770a000-f770b000 r--p 00017000 fc:00 1454640                            /usr/grte/v3/lib/libpthread-2.15.so
+f770b000-f770c000 rw-p 00018000 fc:00 1454640                            /usr/grte/v3/lib/libpthread-2.15.so
+f770c000-f770f000 rw-p 00000000 00:00 0 
+f770f000-f7710000 r--p 00000000 00:00 0 
+f7710000-f7714000 rw-p 00000000 00:00 0 
+f7714000-f7715000 r-xp 00000000 00:00 0                                  [vdso]
+f7715000-f7738000 r-xp 00000000 fc:00 1454613                            /usr/grte/v3/lib/ld-2.15.so
+f7738000-f7739000 r--p 00022000 fc:00 1454613                            /usr/grte/v3/lib/ld-2.15.so
+f7739000-f773a000 rw-p 00023000 fc:00 1454613                            /usr/grte/v3/lib/ld-2.15.so
+fff14000-fff35000 rw-p 00000000 00:00 0                                  [stack]
+
+VM Arguments:
+jvm_args: -agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:60815 -Dfile.encoding=UTF-8 
+java_command: coffee.CoffeeApp
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=/usr/local/buildtools/java/jdk/bin:/usr/local/google/home/sgoldfeder/bin:/usr/lib/lightdm/lightdm:/usr/lib/google-golang/bin:/usr/local/buildtools/java/jdk/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/google/home/sgoldfeder/android-sdk-linux/tools:/usr/local/google/home/sgoldfeder/android-sdk-linux/platform-tools:/usr/local/google/home/sgoldfeder/android-sdk-linux/tools:/usr/local/google/home/sgoldfeder/android-sdk-linux/platform-tools
+LD_LIBRARY_PATH=/usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/server:/usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386:/usr/local/buildtools/java/jdk7-google-v5-32/jre/../lib/i386:/usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386/client:/usr/local/buildtools/java/jdk7-google-v5-32/jre/lib/i386:
+SHELL=/bin/bash
+DISPLAY=:0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x908160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGBUS: [libjvm.so+0x908160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGFPE: [libjvm.so+0x73a590], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGPIPE: [libjvm.so+0x73a590], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGXFSZ: [libjvm.so+0x73a590], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGILL: [libjvm.so+0x73a590], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGUSR1: SIG_DFL, sa_mask[0]=0x00000000, sa_flags=0x00000000
+SIGUSR2: [libjvm.so+0x739bd0], sa_mask[0]=0x00000004, sa_flags=0x10000004
+SIGHUP: [libjvm.so+0x73c160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGINT: [libjvm.so+0x73c160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGTERM: [libjvm.so+0x73c160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGQUIT: [libjvm.so+0x73c160], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+
+Polling page address: 0xf770f000
+Memory serialize page address: 0xf770e000
+
+
+---------------  S Y S T E M  ---------------
+
+OS:wheezy/sid
+
+uname:Linux 3.2.5-gg1236 #1 SMP Tue May 21 02:35:06 PDT 2013 x86_64
+libc:glibc 2.15 NPTL 2.15 
+rlimit: STACK 8192k, CORE 0k, NPROC 32768, NOFILE 32768, AS infinity
+load average:0.01 0.04 0.08
+
+/proc/meminfo:
+MemTotal:       12303644 kB
+MemFree:         1828628 kB
+Buffers:          399148 kB
+Cached:          4911460 kB
+SwapCached:        74320 kB
+Active:          5755748 kB
+Inactive:        3362712 kB
+Active(anon):    3164028 kB
+Inactive(anon):   665404 kB
+Active(file):    2591720 kB
+Inactive(file):  2697308 kB
+Unevictable:       19480 kB
+Mlocked:           19480 kB
+SwapTotal:      12578812 kB
+SwapFree:       12263476 kB
+Dirty:               208 kB
+Writeback:             0 kB
+AnonPages:       3777624 kB
+Mapped:           287468 kB
+Shmem:              2368 kB
+Slab:            1032680 kB
+SReclaimable:     592228 kB
+SUnreclaim:       440452 kB
+KernelStack:        8808 kB
+PageTables:        51248 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    18730632 kB
+Committed_AS:    8880844 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:      147396 kB
+VmallocChunk:   34359574524 kB
+HardwareCorrupted:     0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:      800740 kB
+DirectMap2M:    11780096 kB
+DirectMap1G:           0 kB
+
+
+CPU:total 12 (6 cores per cpu, 2 threads per core) family 6 model 44 stepping 2, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3, sse4.1, sse4.2, popcnt, ht
+
+/proc/cpuinfo:
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 3059.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 0
+cpu cores	: 6
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.57
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 1
+cpu cores	: 6
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.51
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 2
+cpu cores	: 6
+apicid		: 4
+initial apicid	: 4
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.51
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 8
+cpu cores	: 6
+apicid		: 16
+initial apicid	: 16
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 4
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 9
+cpu cores	: 6
+apicid		: 18
+initial apicid	: 18
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 5
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 10
+cpu cores	: 6
+apicid		: 20
+initial apicid	: 20
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.51
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 6
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 0
+cpu cores	: 6
+apicid		: 1
+initial apicid	: 1
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 7
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 1
+cpu cores	: 6
+apicid		: 3
+initial apicid	: 3
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.51
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 8
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 2
+cpu cores	: 6
+apicid		: 5
+initial apicid	: 5
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 9
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 8
+cpu cores	: 6
+apicid		: 17
+initial apicid	: 17
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.51
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 10
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 9
+cpu cores	: 6
+apicid		: 19
+initial apicid	: 19
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+processor	: 11
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 44
+model name	: Intel(R) Xeon(R) CPU           W3690  @ 3.47GHz
+stepping	: 2
+microcode	: 0x10
+cpu MHz		: 1596.000
+cache size	: 12288 KB
+physical id	: 0
+siblings	: 12
+core id		: 10
+cpu cores	: 6
+apicid		: 21
+initial apicid	: 21
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 11
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 popcnt aes lahf_lm ida arat epb dts tpr_shadow vnmi flexpriority ept vpid
+bogomips	: 6933.50
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 36 bits physical, 48 bits virtual
+power management:
+
+
+
+Memory: 4k page, physical 12303644k(1828628k free), swap 12578812k(12263476k free)
+
+vm_info: OpenJDK Server VM (22.0-b10) for linux-x86 JRE (1.7.0-google-v5-46288310-44849760), built on May  7 2013 13:11:16 by "java-platform" with gcc 4.4.3
+
+time: Wed Jul 10 13:13:14 2013
+elapsed time: 88 seconds
+

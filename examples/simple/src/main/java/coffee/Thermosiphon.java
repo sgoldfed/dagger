@@ -1,12 +1,15 @@
 package coffee;
 
+import coffee.api.AbstractThermosiphon;
+
 import javax.inject.Inject;
 
-class Thermosiphon implements Pump {
+class Thermosiphon extends AbstractThermosiphon implements Pump {
   private final Heater heater;
 
   @Inject
   Thermosiphon(Heater heater) {
+    super();
     this.heater = heater;
   }
 

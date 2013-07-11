@@ -13,7 +13,8 @@ public class CoffeeApp implements Runnable {
 
   public static void main(String[] args) {
     ObjectGraph objectGraph = ObjectGraph.create(new DripCoffeeModule());
+   // Pump coffeeApp = objectGraph.get(Pump.class);
     CoffeeApp coffeeApp = objectGraph.get(CoffeeApp.class);
-    coffeeApp.run();
+   // coffeeApp.run();
   }
 }

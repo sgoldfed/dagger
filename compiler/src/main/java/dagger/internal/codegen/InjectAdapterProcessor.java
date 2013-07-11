@@ -265,7 +265,7 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
     if (supertype != null) {
       writeInjectAdapter(((TypeElement)processingEnv.getTypeUtils().asElement(supertype)), null, null);
       writer.emitField(JavaWriter.type(Binding.class,
-          rawTypeToString(supertype, '.')), "supertypllllle", PRIVATE);
+          rawTypeToString(supertype, '.')), "supertypllllle", PUBLIC);
     }
 
     writer.emitEmptyLine();
