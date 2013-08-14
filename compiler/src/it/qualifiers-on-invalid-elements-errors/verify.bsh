@@ -3,8 +3,14 @@ import java.io.File;
 
 File buildLog = new File(basedir, "build.log");
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1"});   
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1.TestClass1(java.lang.String)"});   
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1.TestClass1()"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass2.TestClass2(java.lang.String)"});
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass2"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass2.TestClass2()"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass3.TestClass3()"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass4.TestClass4()"});

@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,39 +15,50 @@
  */
 package test;
 
-import dagger.Module;
-import dagger.Provides;
-import java.lang.annotation.Retention;
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import javax.inject.Inject;
+
+import java.lang.annotation.Retention;
+
+import com.google.inject.BindingAnnotation;
+
+import javax.inject.Qualifier;
 
 class TestApp {
 
-  static class TestClass {
-    @MyQualifier int field1; // non-injectable field
+  /**
+   * Class has a javax qualifier annotation on a non-injectable field, non-injectable constructor parameter
+   * and non @Provides/non-injectable method.
+   */
+  public class TestClass1 {
+    public TestClass1(@JavaxQualifier int constructorParam1) {}
     
-    @SuppressWarnings("some string other than 'qualifiers'")
-    @MyQualifier 
-    int field2;
+    @JavaxQualifier int field;
     
-    @SuppressWarnings("qualifiers")
-    @MyQualifier 
-    int fieldWithWarningSuppressed1;
+    @JavaxQualifier
+    void nonProvidesMethod() {}
+  }
+  
+  /**
+   * Class has a Guice Binding Annotation on a non-injectable field, non-injectable constructor parameter
+   * and non @Provides/non-injectable method.
+   */
+  public class TestClass2 {
+    public TestClass2(@GuiceBindingAnnotation int constructorParam2) {}
     
-    @SuppressWarnings({"foo", "qualifiers", "bar"})
-    @MyQualifier 
-    int fieldWithWarningSuppressed2;
+    @GuiceBindingAnnotation int field;
     
-    // qualfier on non-injectable constructor parameter
-    public TestClass(@MyQualifier String constructorParam) {}
-    
-    @MyQualifier 
-    void nonProvidesMethod(@MyQualifier String methodParam) {}
+    @GuiceBindingAnnotation
+    void nonProvidesMethod() {}
   }
   
   @Qualifier
-  @Retention(value = RUNTIME)
-  @interface MyQualifier {}
+  @Retention(RUNTIME)
+  public @interface JavaxQualifier {}
+  
+  @BindingAnnotation
+  @Retention(RUNTIME)
+  public @interface GuiceBindingAnnotation {}
+
 }

@@ -1,0 +1,6 @@
+import dagger.testing.it.BuildLogValidator;
+import java.io.File;
+
+File buildLog = new File(basedir, "build.log");
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Injecting a final field with @com.google.inject.Inject is discouraged: test.TestApp.field"});

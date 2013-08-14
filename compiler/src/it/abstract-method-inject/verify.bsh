@@ -1,0 +1,11 @@
+import dagger.testing.it.BuildLogValidator;
+import java.io.File;
+
+File buildLog = new File(basedir, "build.log");
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@javax.inject.Inject cannot be placed on an abstract method: test.TestApp.TestClass1.abstractMethod()"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@javax.inject.Inject cannot be placed on an abstract method: test.TestApp.TestClass2.abstractMethod()"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@javax.inject.Inject cannot be placed on an abstract method: test.TestApp.TestClass3.abstractMethod1()"});
+

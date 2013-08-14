@@ -1,0 +1,22 @@
+import dagger.testing.it.BuildLogValidator;
+import java.io.File;
+
+File buildLog = new File(basedir, "build.log");
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestClass1.field1"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestClass1.field2"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestClass1.field3"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestModule.providesString1(int)"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: param1"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestModule.providesString2(int)"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: param2"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: test.TestApp.TestModule.providesString3(int)"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Only one qualifier annotation is allowed per element: param3"});

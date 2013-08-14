@@ -1,0 +1,13 @@
+import dagger.testing.it.BuildLogValidator;
+import java.io.File;
+
+File buildLog = new File(basedir, "build.log");
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass1"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass2"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass3"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass4"});
+

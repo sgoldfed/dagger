@@ -3,4 +3,7 @@ import java.io.File;
 
 File buildLog = new File(basedir, "build.log");
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Provides methods must be declared in modules: test.TestApp.providesString()"});
+    "@Provides methods must be declared in modules: test.TestApp.NotAModule.providesString()"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Provides methods must be declared in modules: test.TestApp.AlsoNotAModule.providesInt()"});
+

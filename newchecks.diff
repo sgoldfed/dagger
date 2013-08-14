@@ -1,0 +1,2497 @@
+diff --git a/compiler/pom.xml b/compiler/pom.xml
+index 3a5ca8a..7244949 100644
+--- a/compiler/pom.xml
++++ b/compiler/pom.xml
+@@ -79,6 +79,7 @@
+             <goals><goal>testCompile</goal></goals>
+             <configuration>
+               <annotationProcessors>
++                <annotationProcessor>dagger.internal.codegen.ValidationProcessor</annotationProcessor>
+                 <annotationProcessor>dagger.internal.codegen.InjectAdapterProcessor</annotationProcessor>
+                 <annotationProcessor>dagger.internal.codegen.ModuleAdapterProcessor</annotationProcessor>
+                 <annotationProcessor>dagger.internal.codegen.GraphAnalysisProcessor</annotationProcessor>
+diff --git a/compiler/src/it/final-field-inject/invoker.properties b/compiler/src/it/final-field-inject/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/final-field-inject/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/final-field-inject/pom.xml b/compiler/src/it/final-field-inject/pom.xml
+new file mode 100644
+index 0000000..83aa81f
+--- /dev/null
++++ b/compiler/src/it/final-field-inject/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>final-field-inject</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/final-field-inject/src/main/java/test/TestApp.java b/compiler/src/it/final-field-inject/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..fd955fc
+--- /dev/null
++++ b/compiler/src/it/final-field-inject/src/main/java/test/TestApp.java
+@@ -0,0 +1,23 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import javax.inject.Inject;
++
++class TestApp {
++  @Inject final Object nope;
++}
+diff --git a/compiler/src/it/final-field-inject/verify.bsh b/compiler/src/it/final-field-inject/verify.bsh
+new file mode 100644
+index 0000000..1c30652
+--- /dev/null
++++ b/compiler/src/it/final-field-inject/verify.bsh
+@@ -0,0 +1,6 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Can't inject a final field: test.TestApp.nope"});
+diff --git a/compiler/src/it/multiple-qualifiers/invoker.properties b/compiler/src/it/multiple-qualifiers/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/multiple-qualifiers/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/multiple-qualifiers/pom.xml b/compiler/src/it/multiple-qualifiers/pom.xml
+new file mode 100644
+index 0000000..655be00
+--- /dev/null
++++ b/compiler/src/it/multiple-qualifiers/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>multiple-qualifiers</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/multiple-qualifiers/src/main/java/test/TestApp.java b/compiler/src/it/multiple-qualifiers/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..55a51f4
+--- /dev/null
++++ b/compiler/src/it/multiple-qualifiers/src/main/java/test/TestApp.java
+@@ -0,0 +1,61 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import java.lang.annotation.Retention;
++import javax.inject.Inject;
++import javax.inject.Singleton;
++import javax.inject.Qualifier;
++
++import static java.lang.annotation.RetentionPolicy.RUNTIME;
++
++class TestApp {
++  static class TestClass1 {
++    @Inject
++    @MyQualifier1
++    @MyQualifier2
++    String field;
++  }
++
++  static class TestClass2 {
++    String string;
++
++    public TestClass2(@MyQualifier1 @MyQualifier2 String constructorParam) {
++      this.string = string;
++    }
++  }
++
++  @Module(injects = TestClass1.class)
++  static class TestModule {
++    @MyQualifier1
++    @MyQualifier2
++    @Provides
++    String providesString() {
++      return "string";
++    }
++  }
++ 
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier1 {}
++ 
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier2 {}
++}
+diff --git a/compiler/src/it/multiple-qualifiers/verify.bsh b/compiler/src/it/multiple-qualifiers/verify.bsh
+new file mode 100644
+index 0000000..b3fc2a8
+--- /dev/null
++++ b/compiler/src/it/multiple-qualifiers/verify.bsh
+@@ -0,0 +1,10 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Only one qualifier annotation is allowed per element: test.TestApp.TestClass1.field"});
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Only one qualifier annotation is allowed per element: constructorParam"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Only one qualifier annotation is allowed per element: test.TestApp.TestModule.providesString()"});
+diff --git a/compiler/src/it/multiple-scopes/invoker.properties b/compiler/src/it/multiple-scopes/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/multiple-scopes/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/multiple-scopes/pom.xml b/compiler/src/it/multiple-scopes/pom.xml
+new file mode 100644
+index 0000000..a45735a
+--- /dev/null
++++ b/compiler/src/it/multiple-scopes/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>multiple-scopes</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/multiple-scopes/src/main/java/test/TestApp.java b/compiler/src/it/multiple-scopes/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..06b36a6
+--- /dev/null
++++ b/compiler/src/it/multiple-scopes/src/main/java/test/TestApp.java
+@@ -0,0 +1,51 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import java.lang.annotation.Retention;
++import javax.inject.Inject;
++import javax.inject.Scope;
++import javax.inject.Singleton;
++
++import static java.lang.annotation.RetentionPolicy.RUNTIME;;
++
++class TestApp {
++
++  @Singleton
++  @CustomScope
++  static class InjectableClass {
++    @Inject
++    String string;
++  }
++
++  @Module(injects = InjectableClass.class)
++  static class TestModule {
++    @Singleton
++    @CustomScope
++    @Provides
++    String string() {
++      return "string";
++    }
++  }
++
++  @Scope
++  @Retention(value = RUNTIME)
++  public @interface CustomScope {
++  }
++}
+diff --git a/compiler/src/it/multiple-scopes/verify.bsh b/compiler/src/it/multiple-scopes/verify.bsh
+new file mode 100644
+index 0000000..78491d5
+--- /dev/null
++++ b/compiler/src/it/multiple-scopes/verify.bsh
+@@ -0,0 +1,8 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Only one scoping annotation is allowed per element: test.TestApp.InjectableClass"});
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Only one scoping annotation is allowed per element: test.TestApp.TestModule.string()"});
+diff --git a/compiler/src/it/private-inject/verify.bsh b/compiler/src/it/private-inject/verify.bsh
+index 0adb8d2..c327478 100644
+--- a/compiler/src/it/private-inject/verify.bsh
++++ b/compiler/src/it/private-inject/verify.bsh
+@@ -3,6 +3,6 @@ import java.io.File;
+ 
+ File buildLog = new File(basedir, "build.log");
+ new BuildLogValidator().assertHasText(buildLog, new String[]{
+-    "Can't inject a private field or constructor: test.TestApp.nope"});
++    "Can't inject a private field: test.TestApp.nope"});
+ new BuildLogValidator().assertHasText(buildLog, new String[]{
+-    "Can't inject a private field or constructor: test.TestFoo.TestFoo()"});
++    "Can't inject a private constructor: test.TestFoo.TestFoo()"});
+diff --git a/compiler/src/it/provides-method-not-in-module/invoker.properties b/compiler/src/it/provides-method-not-in-module/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/provides-method-not-in-module/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/provides-method-not-in-module/pom.xml b/compiler/src/it/provides-method-not-in-module/pom.xml
+new file mode 100644
+index 0000000..89f527d
+--- /dev/null
++++ b/compiler/src/it/provides-method-not-in-module/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>provides-method-not-in-module</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/provides-method-not-in-module/src/main/java/test/TestApp.java b/compiler/src/it/provides-method-not-in-module/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..8748d37
+--- /dev/null
++++ b/compiler/src/it/provides-method-not-in-module/src/main/java/test/TestApp.java
+@@ -0,0 +1,27 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Provides;
++
++class TestApp {
++
++  @Provides
++  String providesString() {
++    return "string";
++  }
++}
+diff --git a/compiler/src/it/provides-method-not-in-module/verify.bsh b/compiler/src/it/provides-method-not-in-module/verify.bsh
+new file mode 100644
+index 0000000..22cdec5
+--- /dev/null
++++ b/compiler/src/it/provides-method-not-in-module/verify.bsh
+@@ -0,0 +1,6 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "@Provides methods must be declared in modules: test.TestApp.providesString()"});
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-errors/invoker.properties b/compiler/src/it/qualifiers-on-invalid-elements-errors/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-errors/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-errors/pom.xml b/compiler/src/it/qualifiers-on-invalid-elements-errors/pom.xml
+new file mode 100644
+index 0000000..adb65c2
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-errors/pom.xml
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>qualifiers-on-invalid-elements-errors</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++          <showWarnings>true</showWarnings>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-errors/src/main/java/test/TestApp.java b/compiler/src/it/qualifiers-on-invalid-elements-errors/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..b423221
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-errors/src/main/java/test/TestApp.java
+@@ -0,0 +1,49 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import java.lang.annotation.Retention;
++import javax.inject.Inject;
++import javax.inject.Qualifier;
++
++import static java.lang.annotation.RetentionPolicy.RUNTIME;
++
++class TestApp {
++
++  @MyQualifier
++  static class TestClass1 {
++    
++    @MyQualifier // qualfier on non-injectable constructor
++    public TestClass1(String constructorParam) {}
++  }
++  
++  static class TestClass2 {
++    String string;
++    
++    @Inject
++    @MyQualifier // qualifier on injectable constructor
++    public TestClass2(String injectableConstructorParam) {
++      this.string = string;
++    }  
++  }
++  
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier {}
++}
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-errors/verify.bsh b/compiler/src/it/qualifiers-on-invalid-elements-errors/verify.bsh
+new file mode 100644
+index 0000000..814ff8b
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-errors/verify.bsh
+@@ -0,0 +1,10 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass1.TestClass1(java.lang.String)"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Qualifier annotations are only allowed on fields, methods, and parameters: test.TestApp.TestClass2.TestClass2(java.lang.String)"});
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-warnings/pom.xml b/compiler/src/it/qualifiers-on-invalid-elements-warnings/pom.xml
+new file mode 100644
+index 0000000..ca4cb32
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-warnings/pom.xml
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>qualifiers-on-invalid-elements-warnings</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++          <showWarnings>true</showWarnings>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-warnings/src/main/java/test/TestApp.java b/compiler/src/it/qualifiers-on-invalid-elements-warnings/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..df24a27
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-warnings/src/main/java/test/TestApp.java
+@@ -0,0 +1,42 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import java.lang.annotation.Retention;
++import javax.inject.Inject;
++import javax.inject.Qualifier;
++
++import static java.lang.annotation.RetentionPolicy.RUNTIME;
++
++class TestApp {
++
++  static class TestClass {
++    @MyQualifier int field; // non-injectable field
++    
++    // qualfier on non-injectable constructor parameter
++    public TestClass(@MyQualifier String constructorParam) {}
++    
++    @MyQualifier 
++    void nonProvidesMethod(@MyQualifier String methodParam) {}
++  }
++  
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier {}
++}
+diff --git a/compiler/src/it/qualifiers-on-invalid-elements-warnings/verify.bsh b/compiler/src/it/qualifiers-on-invalid-elements-warnings/verify.bsh
+new file mode 100644
+index 0000000..e220fb0
+--- /dev/null
++++ b/compiler/src/it/qualifiers-on-invalid-elements-warnings/verify.bsh
+@@ -0,0 +1,12 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Dagger will ignore qualifier annotations on fields that are not annotated with @Inject: test.TestApp.TestClass.field"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Dagger will ignore qualifier annotations on methods that are not @Provides methods: test.TestApp.TestClass.nonProvidesMethod(java.lang.String)"});  
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Dagger will ignore qualifier annotations on parameters that are not @Inject constructor parameters or @Provides method parameters: methodParam"});  
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Dagger will ignore qualifier annotations on parameters that are not @Inject constructor parameters or @Provides method parameters: constructorParam"});
+diff --git a/compiler/src/it/scope-on-abstract/invoker.properties b/compiler/src/it/scope-on-abstract/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/scope-on-abstract/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/scope-on-abstract/pom.xml b/compiler/src/it/scope-on-abstract/pom.xml
+new file mode 100644
+index 0000000..b0555da
+--- /dev/null
++++ b/compiler/src/it/scope-on-abstract/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>scope-on-abstract</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/scope-on-abstract/src/main/java/test/TestApp.java b/compiler/src/it/scope-on-abstract/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..52aeea6
+--- /dev/null
++++ b/compiler/src/it/scope-on-abstract/src/main/java/test/TestApp.java
+@@ -0,0 +1,28 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import javax.inject.Singleton;
++
++class TestApp {
++  
++  @Singleton
++  abstract class AbstractClass {}
++
++  @Singleton
++  interface Interface {}
++}
+diff --git a/compiler/src/it/scope-on-abstract/verify.bsh b/compiler/src/it/scope-on-abstract/verify.bsh
+new file mode 100644
+index 0000000..0cf3b58
+--- /dev/null
++++ b/compiler/src/it/scope-on-abstract/verify.bsh
+@@ -0,0 +1,8 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.AbstractClass"});
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.Interface"});
+diff --git a/compiler/src/it/scopes-on-invalid-elements-errors/invoker.properties b/compiler/src/it/scopes-on-invalid-elements-errors/invoker.properties
+new file mode 100644
+index 0000000..fdd3d20
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-errors/invoker.properties
+@@ -0,0 +1 @@
++invoker.buildResult=failure
+diff --git a/compiler/src/it/scopes-on-invalid-elements-errors/pom.xml b/compiler/src/it/scopes-on-invalid-elements-errors/pom.xml
+new file mode 100644
+index 0000000..7f89ff1
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-errors/pom.xml
+@@ -0,0 +1,51 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>scopes-on-invalid-elements-errors</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/scopes-on-invalid-elements-errors/src/main/java/test/TestApp.java b/compiler/src/it/scopes-on-invalid-elements-errors/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..e63ea58
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-errors/src/main/java/test/TestApp.java
+@@ -0,0 +1,51 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import javax.inject.Inject;
++import javax.inject.Singleton;
++
++class TestApp {
++
++  static class TestClass1 {
++    // Scoped Injectable field
++    @Inject
++    @Singleton
++    Integer field;
++
++    // method with a scoped parameter (2 errors)
++    void method(@Singleton int param) {}
++  }
++
++  static class TestClass2 {
++    // Scoped non-injectable field
++    @Singleton
++    String string;
++  }
++
++  @Module(complete = false, library = true)
++  static class TestModule {
++    
++    // Even though it's a @Provides method, its parameters cannot be scoped
++    @Provides
++    Integer integer(@Singleton int myInt) {
++      return myInt;
++    }
++  }
++}
+diff --git a/compiler/src/it/scopes-on-invalid-elements-errors/verify.bsh b/compiler/src/it/scopes-on-invalid-elements-errors/verify.bsh
+new file mode 100644
+index 0000000..ce74a94
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-errors/verify.bsh
+@@ -0,0 +1,12 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass1.field"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: param"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: test.TestApp.TestClass2.string"});   
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Scoping annotations are only allowed on concrete types and @Provides methods: myInt"});
+diff --git a/compiler/src/it/scopes-on-invalid-elements-warnings/pom.xml b/compiler/src/it/scopes-on-invalid-elements-warnings/pom.xml
+new file mode 100644
+index 0000000..c5825cd
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-warnings/pom.xml
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++  Copyright (C) 2013 Google, Inc.
++  Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>scopes-on-invalid-elements-warnings</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++         <showWarnings>true</showWarnings>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/scopes-on-invalid-elements-warnings/src/main/java/test/TestApp.java b/compiler/src/it/scopes-on-invalid-elements-warnings/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..53333c3
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-warnings/src/main/java/test/TestApp.java
+@@ -0,0 +1,26 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import javax.inject.Singleton;
++
++class TestApp {
++   
++    // Scoped non @Provides method
++    @Singleton
++    void method() {}
++}
+diff --git a/compiler/src/it/scopes-on-invalid-elements-warnings/verify.bsh b/compiler/src/it/scopes-on-invalid-elements-warnings/verify.bsh
+new file mode 100644
+index 0000000..6caa4d4
+--- /dev/null
++++ b/compiler/src/it/scopes-on-invalid-elements-warnings/verify.bsh
+@@ -0,0 +1,6 @@
++import dagger.testing.it.BuildLogValidator;
++import java.io.File;
++
++File buildLog = new File(basedir, "build.log");
++new BuildLogValidator().assertHasText(buildLog, new String[]{
++    "Dagger will ignore scoping annotations on methods that are not @Provides methods: test.TestApp.method()"});
+diff --git a/compiler/src/it/valid-scoping/pom.xml b/compiler/src/it/valid-scoping/pom.xml
+new file mode 100644
+index 0000000..159908c
+--- /dev/null
++++ b/compiler/src/it/valid-scoping/pom.xml
+@@ -0,0 +1,52 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++ Copyright (C) 2013 Google, Inc.
++ Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>valid-scoping</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <name>Dagger Integration Test Basic</name>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/valid-scoping/src/main/java/test/TestApp.java b/compiler/src/it/valid-scoping/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..5ae5adf
+--- /dev/null
++++ b/compiler/src/it/valid-scoping/src/main/java/test/TestApp.java
+@@ -0,0 +1,40 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import javax.inject.Inject;
++import javax.inject.Singleton;
++
++class TestApp {
++  
++  @Singleton
++  static class InjectableClass {
++    @Inject String string;
++  }
++
++  @Module(injects = InjectableClass.class)
++  static class TestModule {
++    
++    @Singleton
++    @Provides 
++    String string() {
++      return "string";
++    }
++  }
++}
+diff --git a/compiler/src/it/valid-use-of-qualifiers/pom.xml b/compiler/src/it/valid-use-of-qualifiers/pom.xml
+new file mode 100644
+index 0000000..50bac37
+--- /dev/null
++++ b/compiler/src/it/valid-use-of-qualifiers/pom.xml
+@@ -0,0 +1,53 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<!--
++ Copyright (C) 2013 Google, Inc.
++ Copyright (C) 2013 Square, Inc.
++
++  Licensed under the Apache License, Version 2.0 (the "License");
++  you may not use this file except in compliance with the License.
++  You may obtain a copy of the License at
++
++       http://www.apache.org/licenses/LICENSE-2.0
++
++  Unless required by applicable law or agreed to in writing, software
++  distributed under the License is distributed on an "AS IS" BASIS,
++  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++  See the License for the specific language governing permissions and
++  limitations under the License.
++-->
++<project
++    xmlns="http://maven.apache.org/POM/4.0.0"
++    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
++    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
++  <modelVersion>4.0.0</modelVersion>
++  <groupId>com.example.dagger.tests</groupId>
++  <artifactId>valid-use-ofqualifiers</artifactId>
++  <version>HEAD-SNAPSHOT</version>
++  <name>Dagger Integration Test Basic</name>
++  <dependencies>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger</artifactId>
++      <version>@dagger.version@</version>
++    </dependency>
++    <dependency>
++      <groupId>@dagger.groupId@</groupId>
++      <artifactId>dagger-compiler</artifactId>
++      <version>@dagger.version@</version>
++      <optional>true</optional>
++    </dependency>
++  </dependencies>
++  <build>
++    <plugins>
++      <plugin>
++        <artifactId>maven-compiler-plugin</artifactId>
++        <version>3.1</version>
++        <configuration>
++          <source>1.5</source>
++          <target>1.5</target>
++          <showWarnings>true</showWarnings>
++        </configuration>
++      </plugin>
++    </plugins>
++  </build>
++</project>
+diff --git a/compiler/src/it/valid-use-of-qualifiers/src/main/java/test/TestApp.java b/compiler/src/it/valid-use-of-qualifiers/src/main/java/test/TestApp.java
+new file mode 100644
+index 0000000..da21df5
+--- /dev/null
++++ b/compiler/src/it/valid-use-of-qualifiers/src/main/java/test/TestApp.java
+@@ -0,0 +1,63 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package test;
++
++import dagger.Module;
++import dagger.Provides;
++import java.lang.annotation.Retention;
++import javax.inject.Inject;
++import javax.inject.Qualifier;
++
++import static java.lang.annotation.RetentionPolicy.RUNTIME;
++
++class TestApp {
++  static class TestClass1 {
++    @Inject @MyQualifier1 String field;
++  }
++  
++  static class TestClass2 {
++    String string;
++    
++    @Inject
++    public TestClass2(@MyQualifier1 String constructorParam) {
++      this.string = string;
++    }
++  }
++
++  @Module(injects = TestClass1.class)
++  static class TestModule {
++
++    @Provides
++    @MyQualifier1
++    String providesString(@MyQualifier2 String providesMethodParam) {
++      return providesMethodParam + "foo";
++    }
++    
++    @Provides
++    @MyQualifier2
++    String providesString() {
++      return "foo";
++    }
++  }
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier1 {}
++  
++  @Qualifier
++  @Retention(value = RUNTIME)
++  @interface MyQualifier2 {}
++}
+diff --git a/compiler/src/main/java/dagger/internal/codegen/GeneratorKeys.java b/compiler/src/main/java/dagger/internal/codegen/GeneratorKeys.java
+index 838fa9c..17f1800 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/GeneratorKeys.java
++++ b/compiler/src/main/java/dagger/internal/codegen/GeneratorKeys.java
+@@ -25,8 +25,8 @@ import javax.lang.model.element.ExecutableElement;
+ import javax.lang.model.element.VariableElement;
+ import javax.lang.model.type.TypeMirror;
+ 
+-import static dagger.internal.codegen.TypeUtils.rawTypeToString;
+-import static dagger.internal.codegen.TypeUtils.typeToString;
++import static dagger.internal.codegen.Util.rawTypeToString;
++import static dagger.internal.codegen.Util.typeToString;
+ 
+ /**
+  * Creates keys using javac's mirror APIs. Unlike {@code Keys}, this class uses
+@@ -57,7 +57,7 @@ final class GeneratorKeys {
+   /** Returns the provided key for {@code method}. */
+   public static String get(ExecutableElement method) {
+     StringBuilder result = new StringBuilder();
+-    AnnotationMirror qualifier = getQualifier(method.getAnnotationMirrors(), method);
++    AnnotationMirror qualifier = getQualifier(method.getAnnotationMirrors());
+     if (qualifier != null) {
+       qualifierToString(qualifier, result);
+     }
+@@ -68,7 +68,7 @@ final class GeneratorKeys {
+   /** Returns the provided key for {@code method} wrapped by {@code Set}. */
+   public static String getSetKey(ExecutableElement method) {
+     StringBuilder result = new StringBuilder();
+-    AnnotationMirror qualifier = getQualifier(method.getAnnotationMirrors(), method);
++    AnnotationMirror qualifier = getQualifier(method.getAnnotationMirrors());
+     if (qualifier != null) {
+       qualifierToString(qualifier, result);
+     }
+@@ -81,7 +81,7 @@ final class GeneratorKeys {
+   /** Returns the provider key for {@code variable}. */
+   public static String get(VariableElement variable) {
+     StringBuilder result = new StringBuilder();
+-    AnnotationMirror qualifier = getQualifier(variable.getAnnotationMirrors(), variable);
++    AnnotationMirror qualifier = getQualifier(variable.getAnnotationMirrors());
+     if (qualifier != null) {
+       qualifierToString(qualifier, result);
+     }
+@@ -103,16 +103,14 @@ final class GeneratorKeys {
+     result.append(")/");
+   }
+ 
++  /** Does not test for multiple qualifiers. This is tested in {@code ValidationProcessor}.  */
+   private static AnnotationMirror getQualifier(
+-      List<? extends AnnotationMirror> annotations, Object member) {
++      List<? extends AnnotationMirror> annotations) {
+     AnnotationMirror qualifier = null;
+     for (AnnotationMirror annotation : annotations) {
+       if (annotation.getAnnotationType().asElement().getAnnotation(Qualifier.class) == null) {
+         continue;
+       }
+-      if (qualifier != null) {
+-        throw new IllegalArgumentException("Too many qualifier annotations on " + member);
+-      }
+       qualifier = annotation;
+     }
+     return qualifier;
+diff --git a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisInjectBinding.java b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisInjectBinding.java
+index aafa6c7..2d83501 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisInjectBinding.java
++++ b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisInjectBinding.java
+@@ -30,7 +30,7 @@ import javax.lang.model.element.TypeElement;
+ import javax.lang.model.element.VariableElement;
+ import javax.lang.model.type.TypeMirror;
+ 
+-import static dagger.internal.codegen.TypeUtils.getApplicationSupertype;
++import static dagger.internal.codegen.Util.getApplicationSupertype;
+ 
+ /**
+  * A build time binding that injects the constructor and fields of a class.
+diff --git a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisProcessor.java b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisProcessor.java
+index cd8206b..3aa861c 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisProcessor.java
++++ b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisProcessor.java
+@@ -53,10 +53,10 @@ import javax.tools.StandardLocation;
+ 
+ import static dagger.Provides.Type.SET;
+ import static dagger.Provides.Type.SET_VALUES;
+-import static dagger.internal.codegen.TypeUtils.getAnnotation;
+-import static dagger.internal.codegen.TypeUtils.getPackage;
+-import static dagger.internal.codegen.TypeUtils.isInterface;
+-import static dagger.internal.codegen.TypeUtils.methodName;
++import static dagger.internal.codegen.Util.getAnnotation;
++import static dagger.internal.codegen.Util.getPackage;
++import static dagger.internal.codegen.Util.isInterface;
++import static dagger.internal.codegen.Util.methodName;
+ 
+ /**
+  * Performs full graph analysis on a module.
+@@ -84,7 +84,7 @@ public final class GraphAnalysisProcessor extends AbstractProcessor {
+         }
+         delayedModuleNames.add(((TypeElement) e).getQualifiedName().toString());
+       }
+-      return true;
++      return false;
+     }
+ 
+     Set<Element> modules = new LinkedHashSet<Element>();
+@@ -128,7 +128,7 @@ public final class GraphAnalysisProcessor extends AbstractProcessor {
+         }
+       }
+     }
+-    return true;
++    return false;
+   }
+ 
+   private void error(String message, Element element) {
+diff --git a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisStaticInjection.java b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisStaticInjection.java
+index 5f4b96a..dee4376 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisStaticInjection.java
++++ b/compiler/src/main/java/dagger/internal/codegen/GraphAnalysisStaticInjection.java
+@@ -20,7 +20,7 @@ import dagger.internal.StaticInjection;
+ import javax.inject.Inject;
+ import javax.lang.model.element.Element;
+ 
+-import static dagger.internal.codegen.TypeUtils.isStatic;
++import static dagger.internal.codegen.Util.isStatic;
+ 
+ public final class GraphAnalysisStaticInjection extends StaticInjection {
+ 
+diff --git a/compiler/src/main/java/dagger/internal/codegen/InjectAdapterProcessor.java b/compiler/src/main/java/dagger/internal/codegen/InjectAdapterProcessor.java
+index cb47831..a037642 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/InjectAdapterProcessor.java
++++ b/compiler/src/main/java/dagger/internal/codegen/InjectAdapterProcessor.java
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2012 Square, Inc.
++ * Copyright (C) 2013 Google, Inc.
+  *
+  * Licensed under the Apache License, Version 2.0 (the "License");
+  * you may not use this file except in compliance with the License.
+@@ -47,13 +48,14 @@ import javax.tools.Diagnostic;
+ import javax.tools.JavaFileObject;
+ 
+ import static dagger.internal.codegen.AdapterJavadocs.binderTypeDocs;
+-import static dagger.internal.codegen.TypeUtils.adapterName;
+-import static dagger.internal.codegen.TypeUtils.getApplicationSupertype;
+-import static dagger.internal.codegen.TypeUtils.getNoArgsConstructor;
+-import static dagger.internal.codegen.TypeUtils.getPackage;
+-import static dagger.internal.codegen.TypeUtils.isCallableConstructor;
+-import static dagger.internal.codegen.TypeUtils.rawTypeToString;
+-import static dagger.internal.codegen.TypeUtils.typeToString;
++import static dagger.internal.codegen.Util.adapterName;
++import static dagger.internal.codegen.Util.elementToString;
++import static dagger.internal.codegen.Util.getApplicationSupertype;
++import static dagger.internal.codegen.Util.getNoArgsConstructor;
++import static dagger.internal.codegen.Util.getPackage;
++import static dagger.internal.codegen.Util.isCallableConstructor;
++import static dagger.internal.codegen.Util.rawTypeToString;
++import static dagger.internal.codegen.Util.typeToString;
+ import static dagger.internal.loaders.GeneratedAdapters.INJECT_ADAPTER_SUFFIX;
+ import static dagger.internal.loaders.GeneratedAdapters.STATIC_INJECTION_SUFFIX;
+ import static java.lang.reflect.Modifier.FINAL;
+@@ -95,7 +97,7 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
+       processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR,
+           "Could not find injection type required by " + remainingTypeNames);
+     }
+-    return true;
++    return false;
+   }
+ 
+   private void writeInjectionsForClass(InjectedClass injectedClass) throws IOException {
+@@ -136,17 +138,30 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
+     Element injectableType = injectable.getEnclosingElement();
+ 
+     if (injectable.getKind() == ElementKind.CLASS) {
+-      error("@Inject is not valid on a class: " + injectable, injectable);
++      error("@Inject is not valid on a class: " + elementToString(injectable), injectable);
+       return false;
+     }
+ 
+     if (injectable.getKind() == ElementKind.METHOD) {
+-      error("Method injection is not supported: " + injectableType + "." + injectable, injectable);
++      error("Method injection is not supported: " + elementToString(injectable), injectable);
++      return false;
++    }
++
++    if (injectable.getKind() == ElementKind.FIELD
++        && injectable.getModifiers().contains(Modifier.FINAL)) {
++      error("Can't inject a final field: " + elementToString(injectable), injectable);
+       return false;
+     }
+-    if (injectable.getModifiers().contains(Modifier.PRIVATE)) {
+-      error("Can't inject a private field or constructor: " + injectableType + "." + injectable,
+-          injectable);
++
++    if (injectable.getKind() == ElementKind.FIELD
++        && injectable.getModifiers().contains(Modifier.PRIVATE)) {
++      error("Can't inject a private field: " + elementToString(injectable), injectable);
++      return false;
++    }
++
++    if (injectable.getKind() == ElementKind.CONSTRUCTOR
++        && injectable.getModifiers().contains(Modifier.PRIVATE)) {
++      error("Can't inject a private constructor: " + elementToString(injectable), injectable);
+       return false;
+     }
+ 
+@@ -155,7 +170,8 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
+     boolean isStatic = injectableType.getModifiers().contains(Modifier.STATIC);
+ 
+     if (isClassOrInterface && !isStatic) {
+-      error("Can't inject a non-static inner class: " + injectableType, injectableType);
++      error("Can't inject a non-static inner class: " + elementToString(injectable),
++          injectableType);
+       return false;
+     }
+ 
+@@ -197,7 +213,7 @@ public final class InjectAdapterProcessor extends AbstractProcessor {
+           break;
+         default:
+           // TODO(tbroyer): pass annotation information
+-          error("Cannot inject " + member, member);
++          error("Cannot inject " + elementToString(member), member);
+           break;
+       }
+     }
+diff --git a/compiler/src/main/java/dagger/internal/codegen/ModuleAdapterProcessor.java b/compiler/src/main/java/dagger/internal/codegen/ModuleAdapterProcessor.java
+index d7d5962..c8ad446 100644
+--- a/compiler/src/main/java/dagger/internal/codegen/ModuleAdapterProcessor.java
++++ b/compiler/src/main/java/dagger/internal/codegen/ModuleAdapterProcessor.java
+@@ -54,13 +54,14 @@ import javax.tools.JavaFileObject;
+ import static dagger.Provides.Type.SET;
+ import static dagger.Provides.Type.SET_VALUES;
+ import static dagger.internal.codegen.AdapterJavadocs.binderTypeDocs;
+-import static dagger.internal.codegen.TypeUtils.adapterName;
+-import static dagger.internal.codegen.TypeUtils.getAnnotation;
+-import static dagger.internal.codegen.TypeUtils.getNoArgsConstructor;
+-import static dagger.internal.codegen.TypeUtils.getPackage;
+-import static dagger.internal.codegen.TypeUtils.isCallableConstructor;
+-import static dagger.internal.codegen.TypeUtils.isInterface;
+-import static dagger.internal.codegen.TypeUtils.typeToString;
++import static dagger.internal.codegen.Util.adapterName;
++import static dagger.internal.codegen.Util.elementToString;
++import static dagger.internal.codegen.Util.getAnnotation;
++import static dagger.internal.codegen.Util.getNoArgsConstructor;
++import static dagger.internal.codegen.Util.getPackage;
++import static dagger.internal.codegen.Util.isCallableConstructor;
++import static dagger.internal.codegen.Util.isInterface;
++import static dagger.internal.codegen.Util.typeToString;
+ import static dagger.internal.loaders.GeneratedAdapters.MODULE_ADAPTER_SUFFIX;
+ import static java.lang.reflect.Modifier.FINAL;
+ import static java.lang.reflect.Modifier.PRIVATE;
+@@ -127,7 +128,7 @@ public final class ModuleAdapterProcessor extends AbstractProcessor {
+           break; // valid, move along
+         default:
+           // TODO(tbroyer): pass annotation information
+-          error("Unexpected @Provides on " + providerMethod, providerMethod);
++          error("Unexpected @Provides on " + elementToString(providerMethod), providerMethod);
+           continue;
+       }
+       TypeElement type = (TypeElement) providerMethod.getEnclosingElement();
+@@ -182,7 +183,7 @@ public final class ModuleAdapterProcessor extends AbstractProcessor {
+     // should still be registered and a ModuleAdapter should still be written.
+     for (Element module : env.getElementsAnnotatedWith(Module.class)) {
+       if (!module.getKind().equals(ElementKind.CLASS)) {
+-        error("Modules must be classes: " + module, module);
++        error("Modules must be classes: " + elementToString(module), module);
+         continue;
+       }
+ 
+@@ -190,7 +191,7 @@ public final class ModuleAdapterProcessor extends AbstractProcessor {
+ 
+       // Verify that all modules do not extend from non-Object types.
+       if (!moduleType.getSuperclass().equals(objectType)) {
+-        error("Modules must not extend from other classes: " + module, module);
++        error("Modules must not extend from other classes: " + elementToString(module), module);
+       }
+ 
+       String moduleName = moduleType.getQualifiedName().toString();
+diff --git a/compiler/src/main/java/dagger/internal/codegen/TypeUtils.java b/compiler/src/main/java/dagger/internal/codegen/TypeUtils.java
+deleted file mode 100644
+index 995623c..0000000
+--- a/compiler/src/main/java/dagger/internal/codegen/TypeUtils.java
++++ /dev/null
+@@ -1,308 +0,0 @@
+-/*
+- * Copyright (C) 2013 Google, Inc.
+- * Copyright (C) 2013 Square, Inc.
+- *
+- * Licensed under the Apache License, Version 2.0 (the "License");
+- * you may not use this file except in compliance with the License.
+- * You may obtain a copy of the License at
+- *
+- * http://www.apache.org/licenses/LICENSE-2.0
+- *
+- * Unless required by applicable law or agreed to in writing, software
+- * distributed under the License is distributed on an "AS IS" BASIS,
+- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+- * See the License for the specific language governing permissions and
+- * limitations under the License.
+- */
+-package dagger.internal.codegen;
+-
+-import dagger.internal.Keys;
+-import java.lang.reflect.Method;
+-import java.util.Arrays;
+-import java.util.LinkedHashMap;
+-import java.util.List;
+-import java.util.Map;
+-import javax.lang.model.element.AnnotationMirror;
+-import javax.lang.model.element.AnnotationValue;
+-import javax.lang.model.element.AnnotationValueVisitor;
+-import javax.lang.model.element.Element;
+-import javax.lang.model.element.ElementKind;
+-import javax.lang.model.element.ExecutableElement;
+-import javax.lang.model.element.Modifier;
+-import javax.lang.model.element.PackageElement;
+-import javax.lang.model.element.TypeElement;
+-import javax.lang.model.type.ArrayType;
+-import javax.lang.model.type.DeclaredType;
+-import javax.lang.model.type.PrimitiveType;
+-import javax.lang.model.type.TypeMirror;
+-import javax.lang.model.type.TypeVariable;
+-import javax.lang.model.util.SimpleAnnotationValueVisitor6;
+-import javax.lang.model.util.SimpleTypeVisitor6;
+-
+-/**
+- * Utilities for handling types in annotation processors
+- */
+-final class TypeUtils {
+-  private TypeUtils() {
+-  }
+-
+-  public static PackageElement getPackage(Element type) {
+-    while (type.getKind() != ElementKind.PACKAGE) {
+-      type = type.getEnclosingElement();
+-    }
+-    return (PackageElement) type;
+-  }
+-
+-  /**
+-   * Returns the supertype, or {@code null} if the supertype is a platform
+-   * class. This is intended for annotation processors that assume platform
+-   * classes will never be annotated with application annotations.
+-   */
+-  public static TypeMirror getApplicationSupertype(TypeElement type) {
+-    TypeMirror supertype = type.getSuperclass();
+-    return Keys.isPlatformType(supertype.toString()) ? null : supertype;
+-  }
+-
+-  /** Returns a fully qualified class name to complement {@code type}. */
+-  public static String adapterName(TypeElement typeElement, String suffix) {
+-    StringBuilder builder = new StringBuilder();
+-    rawTypeToString(builder, typeElement, '$');
+-    builder.append(suffix);
+-    return builder.toString();
+-  }
+-
+-  /** Returns a string for {@code type}. Primitive types are always boxed. */
+-  public static String typeToString(TypeMirror type) {
+-    StringBuilder result = new StringBuilder();
+-    typeToString(type, result, '.');
+-    return result.toString();
+-  }
+-
+-  /** Returns a string for the raw type of {@code type}. Primitive types are always boxed. */
+-  public static String rawTypeToString(TypeMirror type, char innerClassSeparator) {
+-    if (!(type instanceof DeclaredType)) {
+-      throw new IllegalArgumentException("Unexpected type: " + type);
+-    }
+-    StringBuilder result = new StringBuilder();
+-    DeclaredType declaredType = (DeclaredType) type;
+-    rawTypeToString(result, (TypeElement) declaredType.asElement(), innerClassSeparator);
+-    return result.toString();
+-  }
+-
+-  /**
+-   * Appends a string for {@code type} to {@code result}. Primitive types are
+-   * always boxed.
+-   *
+-   * @param innerClassSeparator either '.' or '$', which will appear in a
+-   *     class name like "java.lang.Map.Entry" or "java.lang.Map$Entry".
+-   *     Use '.' for references to existing types in code. Use '$' to define new
+-   *     class names and for strings that will be used by runtime reflection.
+-   */
+-  public static void typeToString(final TypeMirror type, final StringBuilder result,
+-      final char innerClassSeparator) {
+-    type.accept(new SimpleTypeVisitor6<Void, Void>() {
+-      @Override public Void visitDeclared(DeclaredType declaredType, Void v) {
+-        TypeElement typeElement = (TypeElement) declaredType.asElement();
+-        rawTypeToString(result, typeElement, innerClassSeparator);
+-        List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
+-        if (!typeArguments.isEmpty()) {
+-          result.append("<");
+-          for (int i = 0; i < typeArguments.size(); i++) {
+-            if (i != 0) {
+-              result.append(", ");
+-            }
+-            typeToString(typeArguments.get(i), result, innerClassSeparator);
+-          }
+-          result.append(">");
+-        }
+-        return null;
+-      }
+-      @Override public Void visitPrimitive(PrimitiveType primitiveType, Void v) {
+-        result.append(box((PrimitiveType) type).getName());
+-        return null;
+-      }
+-      @Override public Void visitArray(ArrayType arrayType, Void v) {
+-        TypeMirror type = arrayType.getComponentType();
+-        if (type instanceof PrimitiveType) {
+-          result.append(type.toString()); // Don't box, since this is an array.
+-        } else {
+-          typeToString(arrayType.getComponentType(), result, innerClassSeparator);
+-        }
+-        result.append("[]");
+-        return null;
+-      }
+-      @Override public Void visitTypeVariable(TypeVariable typeVariable, Void v) {
+-        result.append(typeVariable.asElement().getSimpleName());
+-        return null;
+-      }
+-      @Override protected Void defaultAction(TypeMirror typeMirror, Void v) {
+-        throw new UnsupportedOperationException(
+-            "Unexpected TypeKind " + typeMirror.getKind() + " for "  + typeMirror);
+-      }
+-    }, null);
+-  }
+-
+-  private static final AnnotationValueVisitor<Object, Void> VALUE_EXTRACTOR
+-      = new SimpleAnnotationValueVisitor6<Object, Void>() {
+-    @Override protected Object defaultAction(Object o, Void v) {
+-      return o;
+-    }
+-    @Override public Object visitArray(List<? extends AnnotationValue> values, Void v) {
+-      Object[] result = new Object[values.size()];
+-      for (int i = 0; i < values.size(); i++) {
+-        result[i] = values.get(i).accept(this, null);
+-      }
+-      return result;
+-    }
+-  };
+-
+-  /**
+-   * Returns the annotation on {@code element} formatted as a Map. This returns
+-   * a Map rather than an instance of the annotation interface to work-around
+-   * the fact that Class and Class[] fields won't work at code generation time.
+-   * See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5089128
+-   */
+-  public static Map<String, Object> getAnnotation(Class<?> annotationType, Element element) {
+-    for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+-      if (!rawTypeToString(annotation.getAnnotationType(), '$')
+-          .equals(annotationType.getName())) {
+-        continue;
+-      }
+-
+-      Map<String, Object> result = new LinkedHashMap<String, Object>();
+-      for (Method m : annotationType.getMethods()) {
+-        result.put(m.getName(), m.getDefaultValue());
+-      }
+-      for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> e
+-          : annotation.getElementValues().entrySet()) {
+-        String name = e.getKey().getSimpleName().toString();
+-        Object value = e.getValue().accept(VALUE_EXTRACTOR, null);
+-        Object defaultValue = result.get(name);
+-        if (!lenientIsInstance(defaultValue.getClass(), value)) {
+-          throw new IllegalStateException(String.format(
+-              "Value of %s.%s is a %s but expected a %s\n    value: %s",
+-              annotationType, name, value.getClass().getName(), defaultValue.getClass().getName(),
+-              value instanceof Object[] ? Arrays.toString((Object[]) value) : value));
+-        }
+-        result.put(name, value);
+-      }
+-      return result;
+-    }
+-
+-    return null; // Annotation not found.
+-  }
+-
+-  /**
+-   * Returns true if {@code value} can be assigned to {@code expectedClass}.
+-   * Like {@link Class#isInstance} but more lenient for {@code Class<?>} values.
+-   */
+-  private static boolean lenientIsInstance(Class<?> expectedClass, Object value) {
+-    if (expectedClass.isArray()) {
+-      Class<?> componentType = expectedClass.getComponentType();
+-      if (!(value instanceof Object[])) {
+-        return false;
+-      }
+-      for (Object element : (Object[]) value) {
+-        if (!lenientIsInstance(componentType, element)) return false;
+-      }
+-      return true;
+-    } else if (expectedClass == Class.class) {
+-      return value instanceof TypeMirror;
+-    } else {
+-      return expectedClass == value.getClass();
+-    }
+-  }
+-
+-  static void rawTypeToString(StringBuilder result, TypeElement type,
+-      char innerClassSeparator) {
+-    String packageName = getPackage(type).getQualifiedName().toString();
+-    String qualifiedName = type.getQualifiedName().toString();
+-    if (packageName.isEmpty()) {
+-        result.append(qualifiedName.replace('.', innerClassSeparator));
+-    } else {
+-      result.append(packageName);
+-      result.append('.');
+-      result.append(
+-          qualifiedName.substring(packageName.length() + 1).replace('.', innerClassSeparator));
+-    }
+-  }
+-
+-  private static Class<?> box(PrimitiveType primitiveType) {
+-    switch (primitiveType.getKind()) {
+-      case BYTE:
+-        return Byte.class;
+-      case SHORT:
+-        return Short.class;
+-      case INT:
+-        return Integer.class;
+-      case LONG:
+-        return Long.class;
+-      case FLOAT:
+-        return Float.class;
+-      case DOUBLE:
+-        return Double.class;
+-      case BOOLEAN:
+-        return Boolean.class;
+-      case CHAR:
+-        return Character.class;
+-      case VOID:
+-        return Void.class;
+-      default:
+-        throw new AssertionError();
+-    }
+-  }
+-
+-  /**
+-   * Returns the no-args constructor for {@code type}, or null if no such
+-   * constructor exists.
+-   */
+-  public static ExecutableElement getNoArgsConstructor(TypeElement type) {
+-    for (Element enclosed : type.getEnclosedElements()) {
+-      if (enclosed.getKind() != ElementKind.CONSTRUCTOR) {
+-        continue;
+-      }
+-      ExecutableElement constructor = (ExecutableElement) enclosed;
+-      if (constructor.getParameters().isEmpty()) {
+-        return constructor;
+-      }
+-    }
+-    return null;
+-  }
+-
+-  /**
+-   * Returns true if generated code can invoke {@code constructor}. That is, if
+-   * the constructor is non-private and its enclosing class is either a
+-   * top-level class or a static nested class.
+-   */
+-  public static boolean isCallableConstructor(ExecutableElement constructor) {
+-    if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
+-      return false;
+-    }
+-    TypeElement type = (TypeElement) constructor.getEnclosingElement();
+-    return type.getEnclosingElement().getKind() == ElementKind.PACKAGE
+-        || type.getModifiers().contains(Modifier.STATIC);
+-  }
+-
+-  /**
+-   * Returns a user-presentable string like {@code
+-   * coffee.CoffeeModule#provideHeater()}.
+-   */
+-  public static String methodName(ExecutableElement method) {
+-    return ((TypeElement) method.getEnclosingElement()).getQualifiedName()
+-        + "." + method.getSimpleName() + "()";
+-  }
+-
+-  public static boolean isInterface(TypeMirror typeMirror) {
+-    return typeMirror instanceof DeclaredType
+-        && ((DeclaredType) typeMirror).asElement().getKind() == ElementKind.INTERFACE;
+-  }
+-
+-  static boolean isStatic(Element element) {
+-    for (Modifier modifier : element.getModifiers()) {
+-      if (modifier.equals(Modifier.STATIC)) {
+-        return true;
+-      }
+-    }
+-    return false;
+-  }
+-}
+diff --git a/compiler/src/main/java/dagger/internal/codegen/Util.java b/compiler/src/main/java/dagger/internal/codegen/Util.java
+new file mode 100644
+index 0000000..febab52
+--- /dev/null
++++ b/compiler/src/main/java/dagger/internal/codegen/Util.java
+@@ -0,0 +1,322 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package dagger.internal.codegen;
++
++import dagger.internal.Keys;
++import java.lang.reflect.Method;
++import java.util.Arrays;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Map;
++import javax.lang.model.element.AnnotationMirror;
++import javax.lang.model.element.AnnotationValue;
++import javax.lang.model.element.AnnotationValueVisitor;
++import javax.lang.model.element.Element;
++import javax.lang.model.element.ElementKind;
++import javax.lang.model.element.ExecutableElement;
++import javax.lang.model.element.Modifier;
++import javax.lang.model.element.PackageElement;
++import javax.lang.model.element.TypeElement;
++import javax.lang.model.type.ArrayType;
++import javax.lang.model.type.DeclaredType;
++import javax.lang.model.type.PrimitiveType;
++import javax.lang.model.type.TypeMirror;
++import javax.lang.model.type.TypeVariable;
++import javax.lang.model.util.SimpleAnnotationValueVisitor6;
++import javax.lang.model.util.SimpleTypeVisitor6;
++
++/**
++ * Utilities for handling types in annotation processors
++ */
++final class Util {
++  private Util() {
++  }
++
++  public static PackageElement getPackage(Element type) {
++    while (type.getKind() != ElementKind.PACKAGE) {
++      type = type.getEnclosingElement();
++    }
++    return (PackageElement) type;
++  }
++
++  /**
++   * Returns the supertype, or {@code null} if the supertype is a platform
++   * class. This is intended for annotation processors that assume platform
++   * classes will never be annotated with application annotations.
++   */
++  public static TypeMirror getApplicationSupertype(TypeElement type) {
++    TypeMirror supertype = type.getSuperclass();
++    return Keys.isPlatformType(supertype.toString()) ? null : supertype;
++  }
++
++  /** Returns a fully qualified class name to complement {@code type}. */
++  public static String adapterName(TypeElement typeElement, String suffix) {
++    StringBuilder builder = new StringBuilder();
++    rawTypeToString(builder, typeElement, '$');
++    builder.append(suffix);
++    return builder.toString();
++  }
++
++  /** Returns a string for {@code type}. Primitive types are always boxed. */
++  public static String typeToString(TypeMirror type) {
++    StringBuilder result = new StringBuilder();
++    typeToString(type, result, '.');
++    return result.toString();
++  }
++
++  /** Returns a string for the raw type of {@code type}. Primitive types are always boxed. */
++  public static String rawTypeToString(TypeMirror type, char innerClassSeparator) {
++    if (!(type instanceof DeclaredType)) {
++      throw new IllegalArgumentException("Unexpected type: " + type);
++    }
++    StringBuilder result = new StringBuilder();
++    DeclaredType declaredType = (DeclaredType) type;
++    rawTypeToString(result, (TypeElement) declaredType.asElement(), innerClassSeparator);
++    return result.toString();
++  }
++
++  /**
++   * Appends a string for {@code type} to {@code result}. Primitive types are
++   * always boxed.
++   *
++   * @param innerClassSeparator either '.' or '$', which will appear in a
++   *     class name like "java.lang.Map.Entry" or "java.lang.Map$Entry".
++   *     Use '.' for references to existing types in code. Use '$' to define new
++   *     class names and for strings that will be used by runtime reflection.
++   */
++  public static void typeToString(final TypeMirror type, final StringBuilder result,
++      final char innerClassSeparator) {
++    type.accept(new SimpleTypeVisitor6<Void, Void>() {
++      @Override public Void visitDeclared(DeclaredType declaredType, Void v) {
++        TypeElement typeElement = (TypeElement) declaredType.asElement();
++        rawTypeToString(result, typeElement, innerClassSeparator);
++        List<? extends TypeMirror> typeArguments = declaredType.getTypeArguments();
++        if (!typeArguments.isEmpty()) {
++          result.append("<");
++          for (int i = 0; i < typeArguments.size(); i++) {
++            if (i != 0) {
++              result.append(", ");
++            }
++            typeToString(typeArguments.get(i), result, innerClassSeparator);
++          }
++          result.append(">");
++        }
++        return null;
++      }
++      @Override public Void visitPrimitive(PrimitiveType primitiveType, Void v) {
++        result.append(box((PrimitiveType) type).getName());
++        return null;
++      }
++      @Override public Void visitArray(ArrayType arrayType, Void v) {
++        TypeMirror type = arrayType.getComponentType();
++        if (type instanceof PrimitiveType) {
++          result.append(type.toString()); // Don't box, since this is an array.
++        } else {
++          typeToString(arrayType.getComponentType(), result, innerClassSeparator);
++        }
++        result.append("[]");
++        return null;
++      }
++      @Override public Void visitTypeVariable(TypeVariable typeVariable, Void v) {
++        result.append(typeVariable.asElement().getSimpleName());
++        return null;
++      }
++      @Override protected Void defaultAction(TypeMirror typeMirror, Void v) {
++        throw new UnsupportedOperationException(
++            "Unexpected TypeKind " + typeMirror.getKind() + " for "  + typeMirror);
++      }
++    }, null);
++  }
++
++  private static final AnnotationValueVisitor<Object, Void> VALUE_EXTRACTOR
++      = new SimpleAnnotationValueVisitor6<Object, Void>() {
++    @Override protected Object defaultAction(Object o, Void v) {
++      return o;
++    }
++    @Override public Object visitArray(List<? extends AnnotationValue> values, Void v) {
++      Object[] result = new Object[values.size()];
++      for (int i = 0; i < values.size(); i++) {
++        result[i] = values.get(i).accept(this, null);
++      }
++      return result;
++    }
++  };
++
++  /**
++   * Returns the annotation on {@code element} formatted as a Map. This returns
++   * a Map rather than an instance of the annotation interface to work-around
++   * the fact that Class and Class[] fields won't work at code generation time.
++   * See http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5089128
++   */
++  public static Map<String, Object> getAnnotation(Class<?> annotationType, Element element) {
++    for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
++      if (!rawTypeToString(annotation.getAnnotationType(), '$')
++          .equals(annotationType.getName())) {
++        continue;
++      }
++
++      Map<String, Object> result = new LinkedHashMap<String, Object>();
++      for (Method m : annotationType.getMethods()) {
++        result.put(m.getName(), m.getDefaultValue());
++      }
++      for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> e
++          : annotation.getElementValues().entrySet()) {
++        String name = e.getKey().getSimpleName().toString();
++        Object value = e.getValue().accept(VALUE_EXTRACTOR, null);
++        Object defaultValue = result.get(name);
++        if (!lenientIsInstance(defaultValue.getClass(), value)) {
++          throw new IllegalStateException(String.format(
++              "Value of %s.%s is a %s but expected a %s\n    value: %s",
++              annotationType, name, value.getClass().getName(), defaultValue.getClass().getName(),
++              value instanceof Object[] ? Arrays.toString((Object[]) value) : value));
++        }
++        result.put(name, value);
++      }
++      return result;
++    }
++
++    return null; // Annotation not found.
++  }
++
++  /**
++   * Returns true if {@code value} can be assigned to {@code expectedClass}.
++   * Like {@link Class#isInstance} but more lenient for {@code Class<?>} values.
++   */
++  private static boolean lenientIsInstance(Class<?> expectedClass, Object value) {
++    if (expectedClass.isArray()) {
++      Class<?> componentType = expectedClass.getComponentType();
++      if (!(value instanceof Object[])) {
++        return false;
++      }
++      for (Object element : (Object[]) value) {
++        if (!lenientIsInstance(componentType, element)) return false;
++      }
++      return true;
++    } else if (expectedClass == Class.class) {
++      return value instanceof TypeMirror;
++    } else {
++      return expectedClass == value.getClass();
++    }
++  }
++
++  // TODO(sgoldfed): better format for other types of elements?
++  static String elementToString(Element element) {
++    switch (element.getKind()) {
++      case FIELD:
++      // fall through
++      case CONSTRUCTOR:
++      // fall through
++      case METHOD:
++        return element.getEnclosingElement() + "." + element;
++      default:
++        return element.toString();
++    }
++  }
++
++  static void rawTypeToString(StringBuilder result, TypeElement type,
++      char innerClassSeparator) {
++    String packageName = getPackage(type).getQualifiedName().toString();
++    String qualifiedName = type.getQualifiedName().toString();
++    if (packageName.isEmpty()) {
++        result.append(qualifiedName.replace('.', innerClassSeparator));
++    } else {
++      result.append(packageName);
++      result.append('.');
++      result.append(
++          qualifiedName.substring(packageName.length() + 1).replace('.', innerClassSeparator));
++    }
++  }
++
++  private static Class<?> box(PrimitiveType primitiveType) {
++    switch (primitiveType.getKind()) {
++      case BYTE:
++        return Byte.class;
++      case SHORT:
++        return Short.class;
++      case INT:
++        return Integer.class;
++      case LONG:
++        return Long.class;
++      case FLOAT:
++        return Float.class;
++      case DOUBLE:
++        return Double.class;
++      case BOOLEAN:
++        return Boolean.class;
++      case CHAR:
++        return Character.class;
++      case VOID:
++        return Void.class;
++      default:
++        throw new AssertionError();
++    }
++  }
++
++  /**
++   * Returns the no-args constructor for {@code type}, or null if no such
++   * constructor exists.
++   */
++  public static ExecutableElement getNoArgsConstructor(TypeElement type) {
++    for (Element enclosed : type.getEnclosedElements()) {
++      if (enclosed.getKind() != ElementKind.CONSTRUCTOR) {
++        continue;
++      }
++      ExecutableElement constructor = (ExecutableElement) enclosed;
++      if (constructor.getParameters().isEmpty()) {
++        return constructor;
++      }
++    }
++    return null;
++  }
++
++  /**
++   * Returns true if generated code can invoke {@code constructor}. That is, if
++   * the constructor is non-private and its enclosing class is either a
++   * top-level class or a static nested class.
++   */
++  public static boolean isCallableConstructor(ExecutableElement constructor) {
++    if (constructor.getModifiers().contains(Modifier.PRIVATE)) {
++      return false;
++    }
++    TypeElement type = (TypeElement) constructor.getEnclosingElement();
++    return type.getEnclosingElement().getKind() == ElementKind.PACKAGE
++        || type.getModifiers().contains(Modifier.STATIC);
++  }
++
++  /**
++   * Returns a user-presentable string like {@code
++   * coffee.CoffeeModule#provideHeater()}.
++   */
++  public static String methodName(ExecutableElement method) {
++    return ((TypeElement) method.getEnclosingElement()).getQualifiedName()
++        + "." + method.getSimpleName() + "()";
++  }
++
++  public static boolean isInterface(TypeMirror typeMirror) {
++    return typeMirror instanceof DeclaredType
++        && ((DeclaredType) typeMirror).asElement().getKind() == ElementKind.INTERFACE;
++  }
++
++  static boolean isStatic(Element element) {
++    for (Modifier modifier : element.getModifiers()) {
++      if (modifier.equals(Modifier.STATIC)) {
++        return true;
++      }
++    }
++    return false;
++  }
++}
+diff --git a/compiler/src/main/java/dagger/internal/codegen/ValidationProcessor.java b/compiler/src/main/java/dagger/internal/codegen/ValidationProcessor.java
+new file mode 100644
+index 0000000..3fb68ef
+--- /dev/null
++++ b/compiler/src/main/java/dagger/internal/codegen/ValidationProcessor.java
+@@ -0,0 +1,198 @@
++/*
++ * Copyright (C) 2013 Google, Inc.
++ * Copyright (C) 2013 Square, Inc.
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ * http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++package dagger.internal.codegen;
++
++import dagger.Module;
++import dagger.Provides;
++import java.util.ArrayList;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.Map;
++import java.util.Set;
++import javax.annotation.processing.AbstractProcessor;
++import javax.annotation.processing.RoundEnvironment;
++import javax.annotation.processing.SupportedAnnotationTypes;
++import javax.inject.Inject;
++import javax.inject.Qualifier;
++import javax.inject.Scope;
++import javax.lang.model.SourceVersion;
++import javax.lang.model.element.AnnotationMirror;
++import javax.lang.model.element.Element;
++import javax.lang.model.element.ExecutableElement;
++import javax.lang.model.element.TypeElement;
++import javax.tools.Diagnostic;
++
++import static dagger.internal.codegen.Util.elementToString;
++import static javax.lang.model.element.ElementKind.CONSTRUCTOR;
++import static javax.lang.model.element.ElementKind.METHOD;
++import static javax.lang.model.element.Modifier.ABSTRACT;
++
++/**
++ * Checks for errors that are not directly related to modules and
++ *  {@code @Inject} annotated elements.
++ */
++@SupportedAnnotationTypes({ "*" })
++public final class ValidationProcessor extends AbstractProcessor {
++
++  @Override public SourceVersion getSupportedSourceVersion() {
++    return SourceVersion.latestSupported();
++  }
++
++  @Override public boolean process(Set<? extends TypeElement> types, RoundEnvironment env) {
++    List<Element> allElements = new ArrayList<Element>();
++    Map<Element, Element> parametersToTheirMethods = new LinkedHashMap<Element, Element>();
++    getAllElements(env, allElements, parametersToTheirMethods);
++    for (Element element : allElements) {
++        validateProvides(element);
++        validateScoping(element);
++        validateQualifiers(element, parametersToTheirMethods);
++    }
++    return false;
++  }
++
++  private void validateProvides(Element element) {
++    if (element.getAnnotation(Provides.class) != null
++        && element.getEnclosingElement().getAnnotation(Module.class) == null) {
++      error("@Provides methods must be declared in modules: " + elementToString(element), element);
++    }
++  }
++
++  private void validateQualifiers(Element element, Map<Element, Element> parametersToTheirMethods) {
++    int numberOfQualifiersOnElement = 0;
++    for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
++      if (annotation.getAnnotationType().asElement().getAnnotation(Qualifier.class) == null) {
++       continue;
++      }
++      switch (element.getKind()) {
++        case FIELD:
++          numberOfQualifiersOnElement++;
++          if (element.getAnnotation(Inject.class) == null) {
++            warning("Dagger will ignore qualifier annotations on fields that are not "
++                + "annotated with @Inject: " + elementToString(element), element);
++          }
++          break;
++        case METHOD:
++          numberOfQualifiersOnElement++;
++          if (!isProvidesMethod(element)) {
++            warning("Dagger will ignore qualifier annotations on methods that are not "
++                + "@Provides methods: " + elementToString(element), element);
++          }
++          break;
++        case PARAMETER:
++          numberOfQualifiersOnElement++;
++          if (!isInjectableConstructorParameter(element, parametersToTheirMethods)
++              && !isProvidesMethodParameter(element, parametersToTheirMethods)) {
++            warning("Dagger will ignore qualifier annotations on parameters that are not "
++                + "@Inject constructor parameters or @Provides method parameters: "
++                + elementToString(element), element);
++          }
++          break;
++        default:
++          error("Qualifier annotations are only allowed on fields, methods, and parameters: "
++              + elementToString(element), element);
++      }
++    }
++    if (numberOfQualifiersOnElement > 1) {
++      error("Only one qualifier annotation is allowed per element: " + elementToString(element),
++          element);
++    }
++  }
++
++  private void validateScoping(Element element) {
++    int numberOfScopingAnnotationsOnElement = 0;
++    for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
++      if (annotation.getAnnotationType().asElement().getAnnotation(Scope.class) == null) {
++        continue;
++      }
++      switch (element.getKind()) {
++        case METHOD:
++          numberOfScopingAnnotationsOnElement++;
++          if (!isProvidesMethod(element)) {
++            warning("Dagger will ignore scoping annotations on methods that are not "
++                + "@Provides methods: " + elementToString(element), element);
++          }
++          break;
++        case CLASS:
++          if (!element.getModifiers().contains(ABSTRACT)) {
++            numberOfScopingAnnotationsOnElement++;
++            break;
++          }
++      // fall through if abstract
++        default:
++          error("Scoping annotations are only allowed on concrete types and @Provides methods: "
++              + elementToString(element), element);
++      }
++    }
++    if (numberOfScopingAnnotationsOnElement > 1) {
++      error("Only one scoping annotation is allowed per element: " + elementToString(element),
++          element);
++    }
++  }
++
++  private void getAllElements(
++      RoundEnvironment env, List<Element> result, Map<Element, Element> parametersToTheirMethods) {
++    for (Element element : env.getRootElements()) {
++      addAllEnclosed(element, result, parametersToTheirMethods);
++    }
++  }
++
++  private void addAllEnclosed(
++      Element element, List<Element> result, Map<Element, Element> parametersToTheirMethods) {
++    result.add(element);
++    for (Element enclosed : element.getEnclosedElements()) {
++      addAllEnclosed(enclosed, result, parametersToTheirMethods);
++      if (enclosed.getKind() == METHOD || enclosed.getKind() == CONSTRUCTOR) {
++        for (Element parameter : ((ExecutableElement) enclosed).getParameters()) {
++          result.add(parameter);
++          parametersToTheirMethods.put(parameter, enclosed);
++        }
++      }
++    }
++  }
++
++  private boolean isProvidesMethod(Element element) {
++    return element.getKind() == METHOD && element.getAnnotation(Provides.class) != null;
++  }
++
++  /**
++   * @param parameter an {@code Element} whose {@code Kind} is parameter. The {@code Kind} is not
++   *        tested here.
++   */
++  private boolean isProvidesMethodParameter(
++      Element parameter, Map<Element, Element> parametersToTheirMethods) {
++    return parametersToTheirMethods.get(parameter).getAnnotation(Provides.class) != null;
++  }
++
++  /**
++   * @param parameter an {@code Element} whose {@code Kind} is parameter. The {@code Kind} is not
++   *        tested here.
++   */
++  private boolean isInjectableConstructorParameter(
++      Element parameter, Map<Element, Element> parametersToTheirMethods) {
++    return parametersToTheirMethods.get(parameter).getKind() == CONSTRUCTOR
++        && parametersToTheirMethods.get(parameter).getAnnotation(Inject.class) != null;
++  }
++
++  private void error(String msg, Element element) {
++    processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, element);
++  }
++
++  private void warning(String msg, Element element) {
++    processingEnv.getMessager().printMessage(Diagnostic.Kind.WARNING, msg, element);
++  }
++
++}
+diff --git a/compiler/src/main/resources/META-INF/services/javax.annotation.processing.Processor b/compiler/src/main/resources/META-INF/services/javax.annotation.processing.Processor
+index dce5a84..97f5f14 100644
+--- a/compiler/src/main/resources/META-INF/services/javax.annotation.processing.Processor
++++ b/compiler/src/main/resources/META-INF/services/javax.annotation.processing.Processor
+@@ -1,3 +1,4 @@
++dagger.internal.codegen.ValidationProcessor
+ dagger.internal.codegen.InjectAdapterProcessor
+ dagger.internal.codegen.ModuleAdapterProcessor
+-dagger.internal.codegen.GraphAnalysisProcessor
+\ No newline at end of file
++dagger.internal.codegen.GraphAnalysisProcessor

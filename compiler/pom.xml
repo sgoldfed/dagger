@@ -59,6 +59,16 @@
       <scope>test</scope>
       <classifier>tests</classifier>
     </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+      <version>3.0</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -80,9 +90,6 @@
             <configuration>
               <annotationProcessors>
                 <annotationProcessor>dagger.internal.codegen.ValidationProcessor</annotationProcessor>
-                <annotationProcessor>dagger.internal.codegen.InjectAdapterProcessor</annotationProcessor>
-                <annotationProcessor>dagger.internal.codegen.ModuleAdapterProcessor</annotationProcessor>
-                <annotationProcessor>dagger.internal.codegen.GraphAnalysisProcessor</annotationProcessor>
               </annotationProcessors>
             </configuration>
           </execution>

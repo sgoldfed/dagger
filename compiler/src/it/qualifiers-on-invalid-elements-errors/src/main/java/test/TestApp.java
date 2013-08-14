@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +15,58 @@
  */
 package test;
 
-import dagger.Module;
-import dagger.Provides;
-import java.lang.annotation.Retention;
-import javax.inject.Inject;
-import javax.inject.Qualifier;
-
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+import javax.inject.Inject;
+
+import java.lang.annotation.Retention;
+
+import com.google.inject.BindingAnnotation;
+
+import javax.inject.Qualifier;
 
 class TestApp {
 
-  @MyQualifier
-  static class TestClass1 {
-    
-    @MyQualifier // qualfier on non-injectable constructor
-    public TestClass1(String constructorParam) {}
+  /**
+   * Class has a javax qualifier annotation on the class itself and a non injectable constructor.
+   */
+  @JavaxQualifier
+  public class TestClass1 {
+    @JavaxQualifier public TestClass1() {}
   }
   
-  static class TestClass2 {
-    String string;
-    
+  /**
+   * Class has a Guice Binding Annotation on the class itself and a non injectable constructor.
+   */
+  @GuiceBindingAnnotation
+  public class TestClass2 {
+    @GuiceBindingAnnotation public TestClass2() {}
+  }
+  
+  /**
+   * Class has a javax qualifier on an injectable constructor.
+   */
+  public class TestClass3 {
+    @JavaxQualifier
     @Inject
-    @MyQualifier // qualifier on injectable constructor
-    public TestClass2(String injectableConstructorParam) {
-      this.string = string;
-    }  
+    public TestClass3() {}
+  }
+  
+  /**
+   * Class has a Guice Binding Annotation on an injectable constructor.
+   */
+  public class TestClass4 {
+    @GuiceBindingAnnotation
+    @Inject
+    public TestClass4() {}
   }
   
   @Qualifier
-  @Retention(value = RUNTIME)
-  @interface MyQualifier {}
+  @Retention(RUNTIME)
+  public @interface JavaxQualifier {}
+  
+  @BindingAnnotation
+  @Retention(RUNTIME)
+  public @interface GuiceBindingAnnotation {}
+
 }

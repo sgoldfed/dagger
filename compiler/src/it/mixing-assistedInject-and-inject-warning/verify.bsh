@@ -1,0 +1,8 @@
+import dagger.testing.it.BuildLogValidator;
+import java.io.File;
+
+File buildLog = new File(basedir, "build.log");
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Class has both an @Inject constructor and an @AssistedInject constructor. This leads to confusing code: test.TestApp.TestClass1"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "Class has both an @Inject constructor and an @AssistedInject constructor. This leads to confusing code: test.TestApp.TestClass2"});

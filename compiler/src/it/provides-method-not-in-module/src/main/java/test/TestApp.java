@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +15,22 @@
  */
 package test;
 
-import dagger.Provides;
+import java.io.Serializable;
+
+import com.google.inject.Provides;
 
 class TestApp {
-
-  @Provides
-  String providesString() {
-    return "string";
+  
+  class NotAModule {
+    @Provides String providesString(){
+      return "string";
+    }
+  }
+  
+  /** Test when the class is a subclass/implements an interface */
+  class AlsoNotAModule extends NotAModule implements Serializable {
+    @Provides int providesInt(){
+      return 5;
+    }
   }
 }

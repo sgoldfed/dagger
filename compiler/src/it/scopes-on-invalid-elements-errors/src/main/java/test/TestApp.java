@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +15,81 @@
  */
 package test;
 
-import dagger.Module;
-import dagger.Provides;
+import com.google.inject.ScopeAnnotation;
+
+import javax.inject.Scope;
+
+import com.google.inject.Provides;
+
+import com.google.inject.AbstractModule;
+
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 class TestApp {
 
-  static class TestClass1 {
-    // Scoped Injectable field
-    @Inject
-    @Singleton
-    Integer field;
-
-    // method with a scoped parameter
-    void method(@Singleton int param) {}
+  /**
+   * Class has a javax scoping annotation on a field.
+   */
+  public class TestClass1 {
+    @MyJavaxScopingAnnotation
+    private String field;
   }
 
-  static class TestClass2 {
-    // Scoped non-injectable field
-    @Singleton
-    String string;
+  /**
+   * Class has a Guice scoping annotation on a field.
+   */
+  public class TestClass2 {
+    @MyGuiceScopingAnnotation
+    private String field;
   }
 
-  @Module(complete = false, library = true)
-  static class TestModule {
+  /**
+   * Class has a javax scoping annotation on a constructor, constructor parameter
+   * and non @Provides method.
+   */
+  public class TestClass3 {
     
-    // Even though it's a @Provides method, its parameters cannot be scoped
+    @MyJavaxScopingAnnotation
+    public TestClass3(@MyJavaxScopingAnnotation int constructorParam1) {}
+  }
+  
+  /**
+   * Class has a Guice scoping annotation on a constructor, constructor parameter
+   * and non @Provides method.
+   */
+  public class TestClass4 {
+    
+    @MyGuiceScopingAnnotation
+    public TestClass4(@MyGuiceScopingAnnotation int constructorParam2) {}
+  }
+
+  /**
+   * Module has a javax scoping annotation on a parameter. The method is a @Provides
+   * method, but this is not relevant and nevertheless an error.
+   */
+  public class TestModule1 extends AbstractModule {
     @Provides
-    Integer integer(@Singleton int myInt) {
-      return myInt;
+    String provideString(@MyJavaxScopingAnnotation String methodParam1) {
+      return string;
     }
   }
+  
+  /**
+   * Module has a Guice scoping annotation on a parameter. The method is a @Provides
+   * method, but this is not relevant and nevertheless an error.
+   */
+  public class TestModule2 extends AbstractModule {
+    @Provides
+    String provideString(@MyGuiceScopingAnnotation String methodParam2) {
+      return string;
+    }
+  }
+  
+  
+  @Scope
+  public @interface MyJavaxScopingAnnotation {}
+  
+  @ScopeAnnotation
+  public @interface MyGuiceScopingAnnotation {}
+
 }

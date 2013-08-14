@@ -21,7 +21,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.example.dagger.tests</groupId>
-  <artifactId>scopes-on-invalid-elements-errors</artifactId>
+  <artifactId>final-field-inject</artifactId>
   <version>HEAD-SNAPSHOT</version>
   <dependencies>
     <dependency>
@@ -34,6 +34,16 @@
       <artifactId>dagger-compiler</artifactId>
       <version>@dagger.version@</version>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject</groupId>
+      <artifactId>guice</artifactId>
+      <version>3.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-assistedinject</artifactId>
+      <version>3.0</version>
     </dependency>
   </dependencies>
   <build>

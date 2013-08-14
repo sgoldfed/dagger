@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +15,34 @@
  */
 package test;
 
-import javax.inject.Singleton;
+import com.google.inject.ScopeAnnotation;
+
+import javax.inject.Scope;
 
 class TestApp {
-   
-    // Scoped non @Provides method
-    @Singleton
-    void method1() {}
-    
-    @SuppressWarnings("some string other than 'scoping'")
-    @Singleton
-    void method2() {}
-    
-    @SuppressWarnings("scoping")
-    @Singleton
-    void methodWithWarningSupressed1() {}
-    
-    @SuppressWarnings({"foo", "scoping", "bar"})
-    @Singleton
-    void methodWithWarningSupressed2() {}
+
+  /**
+   * Class has a javax scoping annotation on a non @Provides method.
+   */
+  public class TestClass1 {
+
+    @MyJavaxScopingAnnotation
+    public void nonProvidesMethod() {}
+  }
+
+  /**
+   * Class has a Guice scoping annotation on a non @Provides method.
+   */
+  public class TestClass2 {
+
+    @MyGuiceScopingAnnotation
+    public void nonProvidesMethod() {}
+  }
+  
+  @Scope
+  public @interface MyJavaxScopingAnnotation {}
+
+  @ScopeAnnotation
+  public @interface MyGuiceScopingAnnotation {}
+
 }
