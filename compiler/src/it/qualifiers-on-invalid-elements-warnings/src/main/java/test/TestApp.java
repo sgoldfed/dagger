@@ -35,9 +35,6 @@ class TestApp {
     public TestClass1(@JavaxQualifier int constructorParam1) {}
     
     @JavaxQualifier int field;
-    
-    @JavaxQualifier
-    void nonProvidesMethod() {}
   }
   
   /**
@@ -48,9 +45,6 @@ class TestApp {
     public TestClass2(@GuiceBindingAnnotation int constructorParam2) {}
     
     @GuiceBindingAnnotation int field;
-    
-    @GuiceBindingAnnotation
-    void nonProvidesMethod() {}
   }
   
   @Qualifier

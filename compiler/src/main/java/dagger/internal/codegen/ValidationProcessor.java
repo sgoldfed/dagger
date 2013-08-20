@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2013 Google, Inc.
- * Copyright (C) 2013 Square, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,14 +21,11 @@ import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.FINAL;
 
-import com.google.inject.assistedinject.Assisted;
-
-import javax.lang.model.element.VariableElement;
+import javax.lang.model.element.AnnotationValue;
 
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Provides;
 import com.google.inject.ScopeAnnotation;
-import com.google.inject.assistedinject.AssistedInject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,23 +45,37 @@ import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
- * Checks for errors that are not directly related to modules and
- *  {@code @Inject} annotated elements.
+ * Static checks for Guice. This processor validates that @Inject, qualifier annotations, and
+ * scoping annotations are used on the correct types of elements, that a class doesn't have multiple
+ * injectable constructors, and that at most one qualifier or scoping annotation is used on an
+ * element. Also verified is that @Provides methods are only declared in modules, that
+ * @AssistedInject and @Inject are not mixed incorrectly, and that @Assisted parameters are properly
+ * disambiguated.
  *
- *  <p> Warnings for invalid use of qualifier annotations can be suppressed
- *  with @SuppressWarnings("qualifiers")
+ * <p> Warnings for invalid use of qualifier annotations can be suppressed with
+ * @SuppressWarnings("qualifiers")
  *
- *  <p> Warnings for invalid use of scoping annotations can be suppressed
- *  with @SuppressWarnings("scoping")
+ * <p> Warnings for invalid use of scoping annotations can be suppressed with
+ * @SuppressWarnings("scoping")
  *
- *  @author sgoldfeder@google.com (Steven Goldfeder)
+ * <p> Warnings for injecting a final field with @com.google.inject.Inject and for using @Inject and
+ * {@code @AssistedInject} on different constructors in the same class can be suppressed with
+ * {@code @SuppressWarnings("inject")}
+ *
+ * @author sgoldfeder@google.com (Steven Goldfeder)
  */
 @SupportedAnnotationTypes({ "*" })
 public final class ValidationProcessor extends AbstractProcessor {
+
+  private static final String ASSISTED_INJECT_ANNOTATION =
+      "com.google.inject.assistedinject.AssistedInject";
+
+  private static final String ASSISTED_ANNOTATION = "com.google.inject.assistedinject.Assisted";
 
   @Override public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
@@ -87,7 +97,9 @@ public final class ValidationProcessor extends AbstractProcessor {
   }
 
   private void validateInjectables(Element element) {
-    validateInjectableConstructors(element);
+    boolean suppressWarnings = element.getAnnotation(SuppressWarnings.class) != null
+        && Arrays.asList(element.getAnnotation(SuppressWarnings.class).value()).contains("inject");
+    validateInjectableConstructors(element, suppressWarnings);
     if (!hasInjectAnnotation(element)) {
       return;
     }
@@ -103,7 +115,8 @@ public final class ValidationProcessor extends AbstractProcessor {
           error("A final field cannot be annotated with @javax.inject.Inject: "
               + elementToString(element), element);
         }
-        if (element.getModifiers().contains(FINAL) && hasComGoogleInject(element)) {
+        if (element.getModifiers().contains(FINAL) && hasComGoogleInject(element)
+            && !suppressWarnings) {
           warning("Injecting a final field with @com.google.inject.Inject is discouraged: "
               + elementToString(element), element);
         }
@@ -112,7 +125,7 @@ public final class ValidationProcessor extends AbstractProcessor {
     }
   }
 
-  private void validateInjectableConstructors(Element element) {
+  private void validateInjectableConstructors(Element element, boolean suppressWarnings) {
     if (element.getKind() != CLASS) {
       return;
     }
@@ -135,35 +148,50 @@ public final class ValidationProcessor extends AbstractProcessor {
       error("Class has more than one injectable constructor: " + elementToString(element), element);
     }
     // will it be weird to get this error as well if they're on the same constructor?
-    if (numberOfInjectableConstructors > 0 && hasAssistedInjectConstructor) {
+    if (numberOfInjectableConstructors > 0 && hasAssistedInjectConstructor && !suppressWarnings) {
       warning("Class has both an @Inject constructor and an @AssistedInject constructor. "
           + "This leads to confusing code: " + elementToString(element), element);
     }
   }
 
   private void validateAssistedParameters(Element element) {
-    if (element.getKind() != CONSTRUCTOR || !hasInjectAnnotation(element)) {
+    if (element.getKind() != CONSTRUCTOR || (!hasInjectAnnotation(element)
+        && !hasAssistedInjectAnnotation(element))) {
       return;
     }
     ExecutableElement injectableConstructor = (ExecutableElement) element;
     for (VariableElement parameter : injectableConstructor.getParameters()) {
-      Assisted assistedAnnotation = parameter.getAnnotation(Assisted.class);
+      AnnotationMirror assistedAnnotation = null;
+      for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
+        if (annotation.getAnnotationType().toString().equals(ASSISTED_ANNOTATION)) {
+          assistedAnnotation = annotation;
+        }
+      }
       if (assistedAnnotation != null) {
         int numIdentical = 0;
         for (VariableElement otherParameter : injectableConstructor.getParameters()) {
           if (processingEnv.getTypeUtils()
               .isSameType(parameter.asType(), otherParameter.asType())) {
-            Assisted otherParamsAssisted = otherParameter.getAnnotation(Assisted.class);
-            if (assistedAnnotation.equals(otherParamsAssisted)) {
-              numIdentical++;
+            AnnotationMirror otherParamsAssisted = null;
+            for (AnnotationMirror annotation : otherParameter.getAnnotationMirrors()) {
+              if (annotation.getAnnotationType().toString().equals(ASSISTED_ANNOTATION)) {
+                otherParamsAssisted = annotation;
+              }
+            }
+            if (otherParamsAssisted != null) {
+              Map<? extends ExecutableElement, ? extends AnnotationValue> thisParamsValues = assistedAnnotation.getElementValues();
+              Map<? extends ExecutableElement, ? extends AnnotationValue> otherParamsValues = otherParamsAssisted.getElementValues();
+              if(thisParamsValues.isEmpty() && otherParamsValues.isEmpty()){
+                numIdentical++;
+              }
             }
           }
         }
         if (numIdentical > 1) { // 1 is expected since when we iterated through the parameters, we
                                 // compared it to every parameter including itself.
-          error("A constructor cannot have two @Assisted parameters of the same type unless "
-              + "they are disambiguated with named @Assisted annotations with different "
-              + "values: " + elementToString(injectableConstructor), injectableConstructor);
+          error("@Assisted parameters must not be the same type unless the annotations have "
+                 + "different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: "
+                 + elementToString(injectableConstructor), injectableConstructor);
         }
       }
     }
@@ -201,10 +229,6 @@ public final class ValidationProcessor extends AbstractProcessor {
           break;
         case METHOD:
           numberOfQualifiersOnElement++;
-          if (!isProvidesMethod(element) && !suppressWarnings) {
-            warning("Guice will ignore qualifier annotations on methods that are not "
-                + "@Provides methods or @Inject methods: " + elementToString(element), element);
-          }
           break;
         case PARAMETER:
           numberOfQualifiersOnElement++;
@@ -297,7 +321,12 @@ public final class ValidationProcessor extends AbstractProcessor {
   }
 
   private boolean hasAssistedInjectAnnotation(Element element) {
-    return element.getAnnotation(AssistedInject.class) != null;
+    for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
+      if (annotation.getAnnotationType().toString().equals(ASSISTED_INJECT_ANNOTATION)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**

@@ -16,6 +16,8 @@
 package test;
 
 import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
+
 
 import java.util.List;
 
@@ -48,22 +50,31 @@ public class AssistedParametersNegativeCases {
     @Inject
     public TestClass3(@Assisted int x, int y, String z) {}
   }
+  
+  /**
+   * Class has  @AssistedInject constructor with one @Assisted parameter with no value specified
+   * and anothe parameter of the same tpye.
+   */
+  public class TestClass4 {
+    @AssistedInject
+    public TestClass4(@Assisted int x, int y, String z) {}
+  }
 
   /**
    * Class has constructor with one @Assisted parameters with a value specified and and another
    * parameter of the same type.
    */
-  public class TestClass4 {
+  public class TestClass6 {
     @Inject
-    public TestClass4(@Assisted("foo") int x, int y, String z) {}
+    public TestClass6(@Assisted("foo") int x, int y, String z) {}
   }
 
   /**
    * Class has constructor with two @Assisted parameters with the same value and generic tpye
    * and different type parameters.
    */
-  public class TestClass5 {
+  public class TestClass7 {
     @Inject
-    public TestClass5(@Assisted("foo") List<String> x, @Assisted("foo") List<Integer> y, String z) {}
+    public TestClass7(@Assisted("foo") List<String> x, @Assisted("foo") List<Integer> y, String z) {}
   }
 }

@@ -15,6 +15,8 @@
  */
 package test;
 
+import com.google.inject.assistedinject.AssistedInject;
+
 import com.google.inject.assistedinject.Assisted;
 
 import java.util.List;
@@ -40,11 +42,25 @@ class TestApp {
   }
 
   /**
-   * Class has constructor with two @Assisted parameters of the same parameterized type.
+   * Class has  constructor with two @Assisted parameters of the same parameterized type.
    */
   public class TestClass3 {
     @Inject
     public TestClass3(
         int n, @Assisted("foo") List<String> x, @Assisted("foo") List<String> y, String z) {}
+  }
+  /**
+   * Class has @AssistedInject constructors with ambiguous @Assisted parameters.
+   */
+  public class TestClass4 {
+    @AssistedInject
+    public TestClass4(
+        int n, @Assisted("foo") List<String> x, @Assisted("foo") List<String> y, String z) {}
+  
+    @AssistedInject
+    public TestClass4(int n, @Assisted("foo") int x, @Assisted("foo") int y, String z) {}
+
+    @AssistedInject
+    public TestClass4(int n, @Assisted String x, @Assisted String y, int z) {}
   }
 }
