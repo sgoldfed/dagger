@@ -184,6 +184,11 @@ public final class ValidationProcessor extends AbstractProcessor {
               if(thisParamsValues.isEmpty() && otherParamsValues.isEmpty()){
                 numIdentical++;
               }
+              for (MethodSymbol m : thisParamsAssisted.getElementValues().keySet())
+                if (otherParamsAssisted.getElementValues().get(m).getValue()
+                    .equals(thisParamsAssisted.getElementValues().get(m).getValue())) {
+                  numIdentical++;
+                }
             }
           }
         }
