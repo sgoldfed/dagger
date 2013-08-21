@@ -3,17 +3,31 @@ import java.io.File;
 
 File buildLog = new File(basedir, "build.log");
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass1.TestClass1(int,java.lang.String,java.lang.String,int)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical1"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass2.TestClass2(int,int,int,java.lang.String)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical2"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass3.TestClass3(int,java.util.List<java.lang.String>,java.util.List<java.lang.String>,java.lang.String)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical3"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass4.TestClass4(int,java.lang.String,java.lang.String,int)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical4"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass4.TestClass4(int,int,int,java.lang.String)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical5"});
 new BuildLogValidator().assertHasText(buildLog, new String[]{
-    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: test.TestApp.TestClass4.TestClass4(int,java.util.List<java.lang.String>,java.util.List<java.lang.String>,java.lang.String)"});
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical6"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical7"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical8"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical9"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical10"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical11"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical12"});
+new BuildLogValidator().assertHasText(buildLog, new String[]{
+    "@Assisted parameters must not be the same type unless the annotations have different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: identical13"});
 
     
      

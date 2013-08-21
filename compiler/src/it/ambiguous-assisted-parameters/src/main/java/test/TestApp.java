@@ -30,7 +30,7 @@ class TestApp {
    */
   public class TestClass1 {
     @Inject
-    public TestClass1(int n, @Assisted String x, @Assisted String y, int z) {}
+    public TestClass1(int n, @Assisted String identical1, @Assisted String identical2, int z) {}
   }
 
   /**
@@ -38,7 +38,8 @@ class TestApp {
    */
   public class TestClass2 {
     @Inject
-    public TestClass2(int n, @Assisted("foo") int x, @Assisted("foo") int y, String z) {}
+    public TestClass2(int n, @Assisted("foo") int identical3, @Assisted("foo") int identical4, 
+        String z, @Assisted("foo") int identical5) {}
   }
 
   /**
@@ -46,21 +47,24 @@ class TestApp {
    */
   public class TestClass3 {
     @Inject
-    public TestClass3(
-        int n, @Assisted("foo") List<String> x, @Assisted("foo") List<String> y, String z) {}
+    public TestClass3(int n, @Assisted("foo") List<String> identical6,
+        @Assisted("foo") List<String> identical7, String z) {}
   }
+  
   /**
    * Class has @AssistedInject constructors with ambiguous @Assisted parameters.
    */
   public class TestClass4 {
     @AssistedInject
     public TestClass4(
-        int n, @Assisted("foo") List<String> x, @Assisted("foo") List<String> y, String z) {}
+        int n, @Assisted("foo") List<String> identical8, @Assisted("foo") List<String> identical9, 
+        String z) {}
   
     @AssistedInject
-    public TestClass4(int n, @Assisted("foo") int x, @Assisted("foo") int y, String z) {}
+    public TestClass4(int n, @Assisted("foo") int identical10, @Assisted("foo") int identical11,
+        String z) {}
 
     @AssistedInject
-    public TestClass4(int n, @Assisted String x, @Assisted String y, int z) {}
+    public TestClass4(int n, @Assisted String identical12, @Assisted String identical13, int z) {}
   }
 }

@@ -21,8 +21,6 @@ import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.lang.model.element.Modifier.ABSTRACT;
 import static javax.lang.model.element.Modifier.FINAL;
 
-import javax.lang.model.element.AnnotationValue;
-
 import com.google.inject.BindingAnnotation;
 import com.google.inject.Provides;
 import com.google.inject.ScopeAnnotation;
@@ -75,7 +73,23 @@ public final class ValidationProcessor extends AbstractProcessor {
   private static final String ASSISTED_INJECT_ANNOTATION =
       "com.google.inject.assistedinject.AssistedInject";
 
+
   private static final String ASSISTED_ANNOTATION = "com.google.inject.assistedinject.Assisted";
+
+  // suppression strings
+  private static final String MORE_THAN_ONE_INJECTABLE_CONSTRUCTOR =
+      "MoreThanOneInjectableConstructor";
+  private static final String JAVAX_INJECT_ON_FINAL_FIELD = "JavaxInjectOnFinalField";
+  private static final String GUICE_INJECT_ON_FINAL_FIELD = "GuiceInjectOnFinalField";
+  private static final String JAVAX_INJECT_ON_ABSTRACT_METHOD = "JavaxInjectOnAbstractMethod";
+  private static final String ASSISTED_INJECT_AND_INJECT_ON_SAME_CONSTRUCTOR =
+      "AssistedInjectAndInjectOnSameConstructor";
+  private static final String ASSISTED_INJECT_AND_INJECT_ON_CONSTRUCTORS =
+      "AssistedInjectAndInjectOnConstructors";
+  private static final String AMBIGUOUS_ASSISTED_PARAMETERS = "AmbiguousAssistedParameters";
+  private static final String GUICE_PROVIDES_NOT_IN_MODULE = "GuiceProvidesNotInModule";
+  private static final String MORE_THAN_ONE_QUALIFIER = "MoreThanOneQualifier";
+  private static final String MORE_THAN_ONE_SCOPE_ANNOTATION = "MoreThanOneScopeAnnotation";
 
   @Override public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
@@ -97,26 +111,26 @@ public final class ValidationProcessor extends AbstractProcessor {
   }
 
   private void validateInjectables(Element element) {
-    boolean suppressWarnings = element.getAnnotation(SuppressWarnings.class) != null
-        && Arrays.asList(element.getAnnotation(SuppressWarnings.class).value()).contains("inject");
-    validateInjectableConstructors(element, suppressWarnings);
+   validateInjectableConstructors(element);
     if (!hasInjectAnnotation(element)) {
       return;
     }
     switch (element.getKind()) {
       case METHOD:
-        if (element.getModifiers().contains(ABSTRACT) && hasJavaxInject(element)) {
+        if (element.getModifiers().contains(ABSTRACT) && hasJavaxInject(element)
+            && !isSuppressed(element, JAVAX_INJECT_ON_ABSTRACT_METHOD)) {
           error("@javax.inject.Inject cannot be placed on an abstract method: "
               + elementToString(element), element);
         }
         break;
       case FIELD:
-        if (element.getModifiers().contains(FINAL) && hasJavaxInject(element)) {
+        if (element.getModifiers().contains(FINAL) && hasJavaxInject(element)
+            && !isSuppressed(element, JAVAX_INJECT_ON_FINAL_FIELD)) {
           error("A final field cannot be annotated with @javax.inject.Inject: "
               + elementToString(element), element);
         }
         if (element.getModifiers().contains(FINAL) && hasComGoogleInject(element)
-            && !suppressWarnings) {
+            && !isSuppressed(element, GUICE_INJECT_ON_FINAL_FIELD)) {
           warning("Injecting a final field with @com.google.inject.Inject is discouraged: "
               + elementToString(element), element);
         }
@@ -125,17 +139,20 @@ public final class ValidationProcessor extends AbstractProcessor {
     }
   }
 
-  private void validateInjectableConstructors(Element element, boolean suppressWarnings) {
+  private void validateInjectableConstructors(Element element) {
     if (element.getKind() != CLASS) {
       return;
     }
     int numberOfInjectableConstructors = 0;
     boolean hasAssistedInjectConstructor = false;
+    boolean gaveErrorForMixingOnSameConstructor = false;
     for (Element enclosed : element.getEnclosedElements()) {
       if (enclosed.getKind().equals(CONSTRUCTOR) && hasInjectAnnotation(enclosed)
-          && hasAssistedInjectAnnotation(enclosed)) {
+          && hasAssistedInjectAnnotation(enclosed)
+          && !isSuppressed(enclosed, ASSISTED_INJECT_AND_INJECT_ON_SAME_CONSTRUCTOR)) {
         error("A constructor cannot be annotated with both @Inject and @AssistedInject: "
             + elementToString(enclosed), enclosed);
+        gaveErrorForMixingOnSameConstructor = true;
       }
       if (enclosed.getKind().equals(CONSTRUCTOR) && hasInjectAnnotation(enclosed)) {
         numberOfInjectableConstructors++;
@@ -144,59 +161,41 @@ public final class ValidationProcessor extends AbstractProcessor {
         hasAssistedInjectConstructor = true;
       }
     }
-    if (numberOfInjectableConstructors > 1) {
+    if (numberOfInjectableConstructors > 1
+        && !isSuppressed(element, MORE_THAN_ONE_INJECTABLE_CONSTRUCTOR)) {
       error("Class has more than one injectable constructor: " + elementToString(element), element);
     }
-    // will it be weird to get this error as well if they're on the same constructor?
-    if (numberOfInjectableConstructors > 0 && hasAssistedInjectConstructor && !suppressWarnings) {
+    if (numberOfInjectableConstructors > 0 && hasAssistedInjectConstructor
+        && !gaveErrorForMixingOnSameConstructor
+        && !isSuppressed(element, ASSISTED_INJECT_AND_INJECT_ON_CONSTRUCTORS)) {
       warning("Class has both an @Inject constructor and an @AssistedInject constructor. "
           + "This leads to confusing code: " + elementToString(element), element);
     }
   }
 
   private void validateAssistedParameters(Element element) {
-    if (element.getKind() != CONSTRUCTOR || (!hasInjectAnnotation(element)
-        && !hasAssistedInjectAnnotation(element))) {
+    if (element.getKind() != CONSTRUCTOR
+        || (!hasInjectAnnotation(element) && !hasAssistedInjectAnnotation(element))) {
       return;
     }
     ExecutableElement injectableConstructor = (ExecutableElement) element;
     for (VariableElement parameter : injectableConstructor.getParameters()) {
-      AnnotationMirror assistedAnnotation = null;
-      for (AnnotationMirror annotation : parameter.getAnnotationMirrors()) {
-        if (annotation.getAnnotationType().toString().equals(ASSISTED_ANNOTATION)) {
-          assistedAnnotation = annotation;
-        }
-      }
-      if (assistedAnnotation != null) {
+      AnnotationMirror thisParamsAssisted = getAnnotation(parameter, ASSISTED_ANNOTATION);
+      if (thisParamsAssisted != null) {
         int numIdentical = 0;
         for (VariableElement otherParameter : injectableConstructor.getParameters()) {
-          if (processingEnv.getTypeUtils()
-              .isSameType(parameter.asType(), otherParameter.asType())) {
-            AnnotationMirror otherParamsAssisted = null;
-            for (AnnotationMirror annotation : otherParameter.getAnnotationMirrors()) {
-              if (annotation.getAnnotationType().toString().equals(ASSISTED_ANNOTATION)) {
-                otherParamsAssisted = annotation;
-              }
-            }
-            if (otherParamsAssisted != null) {
-              Map<? extends ExecutableElement, ? extends AnnotationValue> thisParamsValues = assistedAnnotation.getElementValues();
-              Map<? extends ExecutableElement, ? extends AnnotationValue> otherParamsValues = otherParamsAssisted.getElementValues();
-              if(thisParamsValues.isEmpty() && otherParamsValues.isEmpty()){
-                numIdentical++;
-              }
-              for (MethodSymbol m : thisParamsAssisted.getElementValues().keySet())
-                if (otherParamsAssisted.getElementValues().get(m).getValue()
-                    .equals(thisParamsAssisted.getElementValues().get(m).getValue())) {
-                  numIdentical++;
-                }
-            }
+          AnnotationMirror otherParamsAssisted = getAnnotation(otherParameter, ASSISTED_ANNOTATION);
+          if (isSameType(parameter, otherParameter) && otherParamsAssisted != null
+              && haveIdenticalValues(thisParamsAssisted, otherParamsAssisted)) {
+            numIdentical++;
           }
         }
-        if (numIdentical > 1) { // 1 is expected since when we iterated through the parameters, we
-                                // compared it to every parameter including itself.
+        // 1 is expected since when we iterated through the parameters, we
+        // compared it to every parameter including itself.
+        if (numIdentical > 1 && !isSuppressed(element, AMBIGUOUS_ASSISTED_PARAMETERS)) {
           error("@Assisted parameters must not be the same type unless the annotations have "
-                 + "different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: "
-                 + elementToString(injectableConstructor), injectableConstructor);
+              + "different values (e.g @Assisted(\"fg\") Color fg, @Assisted(\"bg\") Color bg: "
+              + elementToString(parameter), parameter);
         }
       }
     }
@@ -204,21 +203,24 @@ public final class ValidationProcessor extends AbstractProcessor {
 
   private void validateProvides(Element element) {
     if (element.getKind().equals(METHOD) && element.getAnnotation(Provides.class) != null
-        && !isGuiceModule(element.getEnclosingElement().asType())) {
+        && !isGuiceOrGinModule(element)
+        && !isSuppressed(element, GUICE_PROVIDES_NOT_IN_MODULE)) {
       error("@Provides methods must be declared in modules: " + elementToString(element), element);
     }
   }
 
-  private boolean isGuiceModule(TypeMirror type) {
-    TypeMirror module =
+  private boolean isGuiceOrGinModule(Element element) {
+    TypeMirror guiceModule =
         processingEnv.getElementUtils().getTypeElement("com.google.inject.Module").asType();
-    return processingEnv.getTypeUtils().isSubtype(type, module);
+    TypeMirror ginModule = processingEnv.getElementUtils()
+        .getTypeElement("com.google.gwt.inject.client.GinModule").asType();
+    return
+        processingEnv.getTypeUtils().isSubtype(element.getEnclosingElement().asType(), guiceModule)
+        || processingEnv.getTypeUtils()
+            .isSubtype(element.getEnclosingElement().asType(), ginModule);
   }
 
-  private void validateQualifiers(Element element, Map<Element, Element> parametersToTheirMethods) {
-    boolean suppressWarnings =
-        element.getAnnotation(SuppressWarnings.class) != null && Arrays.asList(
-            element.getAnnotation(SuppressWarnings.class).value()).contains("qualifiers");
+  private void validateQualifiers(Element element, Map<Element) {
     int numberOfQualifiersOnElement = 0;
     for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
       if (!isQualifierAnnotation(annotation)) {
@@ -227,7 +229,7 @@ public final class ValidationProcessor extends AbstractProcessor {
       switch (element.getKind()) {
         case FIELD:
           numberOfQualifiersOnElement++;
-          if (element.getAnnotation(Inject.class) == null && !suppressWarnings) {
+          if (element.getAnnotation(Inject.class) == null) {
             warning("Guice will ignore qualifier annotations on fields that are not "
                 + "annotated with @Inject: " + elementToString(element), element);
           }
@@ -237,30 +239,19 @@ public final class ValidationProcessor extends AbstractProcessor {
           break;
         case PARAMETER:
           numberOfQualifiersOnElement++;
-          if (!isInjectableConstructorParameter(element, parametersToTheirMethods)
-              && !isInjectableMethodParameter(element, parametersToTheirMethods)
-              && !isProvidesMethodParameter(element, parametersToTheirMethods)
-              && !suppressWarnings) {
-            warning("Guice will ignore qualifier annotations on parameters that are not @Inject "
-                + "constructor parameters, @Inject method parameters, or @Provides method "
-                + "parameters: " + elementToString(element), element);
-          }
           break;
         default:
           error("Qualifier annotations are only allowed on fields, methods, and parameters: "
               + elementToString(element), element);
       }
     }
-    if (numberOfQualifiersOnElement > 1) {
+    if (numberOfQualifiersOnElement > 1 && !isSuppressed(element, MORE_THAN_ONE_QUALIFIER)) {
       error("Only one qualifier annotation is allowed per element: " + elementToString(element),
           element);
     }
   }
 
   private void validateScoping(Element element) {
-    boolean suppressWarnings =
-        element.getAnnotation(SuppressWarnings.class) != null && Arrays.asList(
-            element.getAnnotation(SuppressWarnings.class).value()).contains("scoping");
     int numberOfScopingAnnotationsOnElement = 0;
     for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
       if (!isScopingAnnotation(annotation)) {
@@ -269,10 +260,6 @@ public final class ValidationProcessor extends AbstractProcessor {
       switch (element.getKind()) {
         case METHOD:
           numberOfScopingAnnotationsOnElement++;
-          if (!isProvidesMethod(element) && !suppressWarnings) {
-            warning("Guice will ignore scoping annotations on methods that are not "
-                + "@Provides methods: " + elementToString(element), element);
-          }
           break;
         case CLASS:
           if (!element.getModifiers().contains(ABSTRACT)) { // includes interfaces
@@ -281,11 +268,12 @@ public final class ValidationProcessor extends AbstractProcessor {
           }
         // fall through if abstract
         default:
-          error("Scoping annotations are only allowed on concrete types and @Provides methods: "
+          error("Scoping annotations are only allowed on concrete types and methods: "
               + elementToString(element), element);
       }
     }
-    if (numberOfScopingAnnotationsOnElement > 1) {
+    if (numberOfScopingAnnotationsOnElement > 1
+        && !isSuppressed(element, MORE_THAN_ONE_SCOPE_ANNOTATION)) {
       error("Only one scoping annotation is allowed per element: " + elementToString(element),
           element);
     }
@@ -334,39 +322,6 @@ public final class ValidationProcessor extends AbstractProcessor {
     return false;
   }
 
-  /**
-   * @param parameter an {@code Element} whose {@code Kind} is parameter. The {@code Kind} is not
-   *        tested here.
-   */
-  private boolean isInjectableConstructorParameter(
-      Element parameter, Map<Element, Element> parametersToTheirMethods) {
-    return parametersToTheirMethods.get(parameter).getKind() == CONSTRUCTOR
-        && hasInjectAnnotation(parametersToTheirMethods.get(parameter));
-  }
-
-  /**
-   * @param parameter an {@code Element} whose {@code Kind} is parameter. The {@code Kind} is not
-   *        tested here.
-   */
-  private boolean isInjectableMethodParameter(
-      Element parameter, Map<Element, Element> parametersToTheirMethods) {
-    return parametersToTheirMethods.get(parameter).getKind() == METHOD //test that cxtor excluded
-        && hasInjectAnnotation(parametersToTheirMethods.get(parameter));
-  }
-
-  private boolean isProvidesMethod(Element element) {
-    return element.getKind() == METHOD && element.getAnnotation(Provides.class) != null;
-  }
-
-  /**
-   * @param parameter an {@code Element} whose {@code Kind} is parameter. The {@code Kind} is not
-   *        tested here.
-   */
-  private boolean isProvidesMethodParameter(
-      Element parameter, Map<Element, Element> parametersToTheirMethods) {
-    return parametersToTheirMethods.get(parameter).getAnnotation(Provides.class) != null;
-  }
-
   private boolean isScopingAnnotation(AnnotationMirror annotation) {
     return annotation.getAnnotationType().asElement().getAnnotation(Scope.class) != null
         || annotation.getAnnotationType().asElement().getAnnotation(ScopeAnnotation.class) != null;
@@ -376,6 +331,10 @@ public final class ValidationProcessor extends AbstractProcessor {
     return annotation.getAnnotationType().asElement().getAnnotation(Qualifier.class) != null
         || annotation.getAnnotationType().asElement().getAnnotation(BindingAnnotation.class)
         != null;
+  }
+
+  private boolean isSameType(Element a, Element b) {
+    return processingEnv.getTypeUtils().isSameType(a.asType(), b.asType());
   }
 
   // TODO(sgoldfeder): better format for other types of elements?
@@ -391,6 +350,51 @@ public final class ValidationProcessor extends AbstractProcessor {
        return element.toString();
    }
  }
+
+ private boolean haveIdenticalValues(AnnotationMirror annotation1, AnnotationMirror annotation2) {
+   if (annotation1.getElementValues().isEmpty() && annotation2.getElementValues().isEmpty()) {
+     return true;
+   }
+   if (annotation1.getElementValues().isEmpty() || annotation2.getElementValues().isEmpty()) {
+     return false; // we know they're not both empty. Only one is empty so not identical
+   }
+   for (ExecutableElement e : annotation1.getElementValues().keySet()) {
+     if (!(annotation2.getElementValues().get(e).getValue()
+         .equals(annotation1.getElementValues().get(e).getValue()))) {
+       return false;
+     }
+   }
+
+   for (ExecutableElement e : annotation2.getElementValues().keySet()) {
+     if (!(annotation1.getElementValues().get(e).getValue()
+         .equals(annotation2.getElementValues().get(e).getValue()))) {
+       return false;
+     }
+   }
+   return true;
+ }
+
+  /**
+   * Checks if the given element is annotated with the given annotation. Returns the
+   * {@code AnnotationMirror} if it is and {@code null} otherwise
+   *
+   * @param annotation the fully qualified name of the annotation
+   * @return returns the {@code AnnotationMirror} if the annotation is present and {@code null} if
+   *         it is not present
+   */
+  private AnnotationMirror getAnnotation(Element element, String annotation) {
+    for (AnnotationMirror annotationMirror : element.getAnnotationMirrors()) {
+      if (annotationMirror.getAnnotationType().toString().equals(annotation)) {
+        return annotationMirror;
+      }
+    }
+    return null;
+  }
+
+  private boolean isSuppressed(Element element, String suppressionString) {
+    return element.getAnnotation(SuppressWarnings.class) != null && Arrays.asList(
+        element.getAnnotation(SuppressWarnings.class).value()).contains(suppressionString);
+  }
 
   private void error(String msg, Element element) {
     processingEnv.getMessager().printMessage(Diagnostic.Kind.ERROR, msg, element);
