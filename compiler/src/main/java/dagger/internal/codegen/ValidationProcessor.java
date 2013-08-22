@@ -257,7 +257,7 @@ public final class ValidationProcessor extends AbstractProcessor {
   }
 
   /**
-   * Checks that @Assited paramaters are properly disambiguated. That is, all @Assisted parameters
+   * Checks that @Assisted paramaters are properly disambiguated. That is, all @Assisted parameters
    * of a constructor must either be of different types, different generic types, or be
    * disambiguated with named @Assisted annotations.
    */
@@ -385,9 +385,10 @@ public final class ValidationProcessor extends AbstractProcessor {
           }
           break;
         default:
-          if (!isSuppressed(element, SCOPING_ANNOTATION_NOT_ON_METHOD_OR_CLASS))
+          if (!isSuppressed(element, SCOPING_ANNOTATION_NOT_ON_METHOD_OR_CLASS)) {
           error("Scoping annotations are only allowed on concrete types and methods: "
               + elementToString(element), element);
+          }
       }
     }
     if (numberOfScopingAnnotationsOnElement > 1
