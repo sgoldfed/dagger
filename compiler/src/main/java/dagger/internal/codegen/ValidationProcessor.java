@@ -35,7 +35,6 @@ import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
-import javax.inject.Inject;
 import javax.inject.Qualifier;
 import javax.inject.Scope;
 import javax.lang.model.SourceVersion;
@@ -48,22 +47,87 @@ import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
- * Static checks for Guice. This processor validates that @Inject, qualifier annotations, and
- * scoping annotations are used on the correct types of elements, that a class doesn't have multiple
- * injectable constructors, and that at most one qualifier or scoping annotation is used on an
- * element. Also verified is that @Provides methods are only declared in modules, that
- * @AssistedInject and @Inject are not mixed incorrectly, and that @Assisted parameters are properly
- * disambiguated.
+ * Static checks for Guice. This processor validates that @Inject and scoping annotations are used
+ * on the correct types of elements, that a class doesn't have multiple injectable constructors,
+ * and that at most one qualifier or scoping annotation is used on an element. Also verified is
+ * that @Provides methods are only declared in modules, that @AssistedInject and @Inject are not
+ * mixed incorrectly, and that @Assisted parameter are properly disambiguated.
  *
- * <p> Warnings for invalid use of qualifier annotations can be suppressed with
- * @SuppressWarnings("qualifiers")
+ * <p> The implemented checks and suppression logic are summarized below:
  *
- * <p> Warnings for invalid use of scoping annotations can be suppressed with
- * @SuppressWarnings("scoping")
- *
- * <p> Warnings for injecting a final field with @com.google.inject.Inject and for using @Inject and
- * {@code @AssistedInject} on different constructors in the same class can be suppressed with
- * {@code @SuppressWarnings("inject")}
+ *<table border="1">
+ *  <tr>
+ *    <th>Severity</th>
+ *    <th>Summary</th>
+ *    <th>Suppression Logic</th>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>class has more than one injectable constructor</td>
+ *    <td>{@code @SuppressWarnings("MoreThanOneInjectableConstructor")}
+ *       <br>The suppression annotation is placed on the class
+ *    </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>@javax.inject.Inject is on a final field</td>
+ *    <td>{@code @SuppressWarnings("JavaxInjectOnFinalField")}</td>
+ *  </tr>
+ *  <tr>
+ *    <td>Warning</td>
+ *    <td>@com.google.inject.Inject is on a final field</td>
+ *    <td>{@code @SuppressWarnings("GuiceInjectOnFinalField")}</td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>@javax.inject.Inject is on an abstract method</td>
+ *    <td>{@code @SuppressWarnings("JavaxInjectOnAbstractMethod")}</td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>@AssistedInject and @Inject are on the same constructor</td>
+ *    <td>{@code @SuppressWarnings("AssistedInjectAndInjectOnSameConstructor")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Warning</td>
+ *    <td>@Inject and @AssistedInject are on different constructors in the same class</td>
+ *    <td>{@code @SuppressWarnings("AssistedInjectAndInjectOnConstructors")}
+ *         <br>The suppression annotation is placed on the class
+ *    </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>constructor has @Assisted parameters that have the same
+ *      type and same value(or no value) for the @Assisted annotation.
+ *    </td>
+ *    <td>{@code @SuppressWarnings("AmbiguousAssistedParameters")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>@com.google.inject.Provides is used outside of a Guice or Gin Module</td>
+ *    <td>{@code @SuppressWarnings("GuiceProvidesNotInModule")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>element is annotated with more than one qualifier annotation</td>
+ *    <td>{@code @SuppressWarnings("MoreThanOneQualifier")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>class or method is annotated with more than one scoping annotation</td>
+ *    <td>{@code @SuppressWarnings("MoreThanOneScopeAnnotation")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>scoping annotation is on an interface or abstract class</td>
+ *    <td>{@code @SuppressWarnings("ScopeAnnotationOnInterfaceOrAbstractClass")} </td>
+ *  </tr>
+ *  <tr>
+ *    <td>Error</td>
+ *    <td>scoping annotation is anywhere other than a method or class</td>
+ *    <td>{@code @SuppressWarnings("ScopingAnnotationNotOnMethodOrClass")} </td>
+ *  </tr>
+ *</table>
  *
  * @author sgoldfeder@google.com (Steven Goldfeder)
  */
@@ -90,6 +154,10 @@ public final class ValidationProcessor extends AbstractProcessor {
   private static final String GUICE_PROVIDES_NOT_IN_MODULE = "GuiceProvidesNotInModule";
   private static final String MORE_THAN_ONE_QUALIFIER = "MoreThanOneQualifier";
   private static final String MORE_THAN_ONE_SCOPE_ANNOTATION = "MoreThanOneScopeAnnotation";
+  private static final String SCOPE_ANNOTATION_ON_INTERFACE_OR_ABSTRACT_CLASS =
+      "ScopeAnnotationOnInterfaceOrAbstractClass";
+  private static final String SCOPING_ANNOTATION_NOT_ON_METHOD_OR_CLASS =
+      "ScopingAnnotationNotOnMethodOrClass";
 
   @Override public SourceVersion getSupportedSourceVersion() {
     return SourceVersion.latestSupported();
@@ -105,11 +173,17 @@ public final class ValidationProcessor extends AbstractProcessor {
       validateAssistedParameters(element);
       validateProvides(element);
       validateScoping(element);
-      validateQualifiers(element, parametersToTheirMethods);
+      validateQualifiers(element);
     }
     return false;
   }
 
+  /**
+   * Checks for @Inject on an abstract method, or a final field. Annotating a final field with
+   * {@code @javax.inject.Inject} is an error, and with @com.google.inject.Inject is a warning.
+   * This method also calls {@code validateInjectableConstructors}.
+   *
+   */
   private void validateInjectables(Element element) {
    validateInjectableConstructors(element);
     if (!hasInjectAnnotation(element)) {
@@ -139,6 +213,12 @@ public final class ValidationProcessor extends AbstractProcessor {
     }
   }
 
+  /**
+   * Checks for mixing @Inject and @AssistedInject on constructors in the same class. If they are
+   * on different constructors, this is a warning as it's legal at runtime but makes the code
+   * confusing. If @Inject and @AssistedInject are on the same constructor, this is an error. This
+   * method also gives an error if a class has more than one injectable constructor.
+   */
   private void validateInjectableConstructors(Element element) {
     if (element.getKind() != CLASS) {
       return;
@@ -169,10 +249,18 @@ public final class ValidationProcessor extends AbstractProcessor {
         && !gaveErrorForMixingOnSameConstructor
         && !isSuppressed(element, ASSISTED_INJECT_AND_INJECT_ON_CONSTRUCTORS)) {
       warning("Class has both an @Inject constructor and an @AssistedInject constructor. "
-          + "This leads to confusing code: " + elementToString(element), element);
+          + "This leads to confusing code.\n"
+          + "To suppress this warning, annotate the class with "
+          + "@SuppressWarnings(\"" + ASSISTED_INJECT_AND_INJECT_ON_CONSTRUCTORS + "\"): "
+          + elementToString(element), element);
     }
   }
 
+  /**
+   * Checks that @Assited paramaters are properly disambiguated. That is, all @Assisted parameters
+   * of a constructor must either be of different types, different generic types, or be
+   * disambiguated with named @Assisted annotations.
+   */
   private void validateAssistedParameters(Element element) {
     if (element.getKind() != CONSTRUCTOR
         || (!hasInjectAnnotation(element) && !hasAssistedInjectAnnotation(element))) {
@@ -201,6 +289,10 @@ public final class ValidationProcessor extends AbstractProcessor {
     }
   }
 
+  /**
+   * Checks that @com.google.inject.Provides methods are in classes that implement(directly
+   * or indirectly) Guice's {@code Module} or @code{GinModule}.
+   */
   private void validateProvides(Element element) {
     if (element.getKind().equals(METHOD) && element.getAnnotation(Provides.class) != null
         && !isGuiceOrGinModule(element)
@@ -209,18 +301,39 @@ public final class ValidationProcessor extends AbstractProcessor {
     }
   }
 
+  /**
+   * The verbosity of this method is so that we don't have to depend on Gin. The Guice
+   * parts could have been simplified, but I chose uniformity as this makes the  code
+   * easier to understand and makes it clear when we are doing parallel operations for
+   * Gin/Guice.
+   */
   private boolean isGuiceOrGinModule(Element element) {
-    TypeMirror guiceModule =
-        processingEnv.getElementUtils().getTypeElement("com.google.inject.Module").asType();
-    TypeMirror ginModule = processingEnv.getElementUtils()
-        .getTypeElement("com.google.gwt.inject.client.GinModule").asType();
-    return
-        processingEnv.getTypeUtils().isSubtype(element.getEnclosingElement().asType(), guiceModule)
-        || processingEnv.getTypeUtils()
-            .isSubtype(element.getEnclosingElement().asType(), ginModule);
+    TypeMirror guiceModule = null;
+    TypeMirror ginModule = null;
+    TypeElement guiceModuleElement =
+        processingEnv.getElementUtils().getTypeElement("com.google.inject.Module");
+    TypeElement ginModuleElement = processingEnv.getElementUtils()
+        .getTypeElement("com.google.gwt.inject.client.GinModule");
+    if (guiceModuleElement != null) {
+      guiceModule = guiceModuleElement.asType();
+    }
+    if (ginModuleElement != null) {
+      ginModule = ginModuleElement.asType();
+    }
+    boolean isGuiceModule = false;
+    boolean isGinModule = false;
+    if (guiceModule != null) {
+      isGuiceModule = processingEnv.getTypeUtils()
+          .isSubtype(element.getEnclosingElement().asType(), guiceModule);
+    }
+    if (ginModule != null) {
+      isGinModule =
+          processingEnv.getTypeUtils().isSubtype(element.getEnclosingElement().asType(), ginModule);
+    }
+    return isGuiceModule || isGinModule;
   }
 
-  private void validateQualifiers(Element element, Map<Element) {
+  private void validateQualifiers(Element element) {
     int numberOfQualifiersOnElement = 0;
     for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
       if (!isQualifierAnnotation(annotation)) {
@@ -229,10 +342,6 @@ public final class ValidationProcessor extends AbstractProcessor {
       switch (element.getKind()) {
         case FIELD:
           numberOfQualifiersOnElement++;
-          if (element.getAnnotation(Inject.class) == null) {
-            warning("Guice will ignore qualifier annotations on fields that are not "
-                + "annotated with @Inject: " + elementToString(element), element);
-          }
           break;
         case METHOD:
           numberOfQualifiersOnElement++;
@@ -241,8 +350,6 @@ public final class ValidationProcessor extends AbstractProcessor {
           numberOfQualifiersOnElement++;
           break;
         default:
-          error("Qualifier annotations are only allowed on fields, methods, and parameters: "
-              + elementToString(element), element);
       }
     }
     if (numberOfQualifiersOnElement > 1 && !isSuppressed(element, MORE_THAN_ONE_QUALIFIER)) {
@@ -262,12 +369,23 @@ public final class ValidationProcessor extends AbstractProcessor {
           numberOfScopingAnnotationsOnElement++;
           break;
         case CLASS:
-          if (!element.getModifiers().contains(ABSTRACT)) { // includes interfaces
+          if (element.getModifiers().contains(ABSTRACT)) {
+            if (!isSuppressed(element, SCOPE_ANNOTATION_ON_INTERFACE_OR_ABSTRACT_CLASS)) {
+              error("Scoping annotations are not allowed on abstract classes: "
+                  + elementToString(element), element);
+            }
+          } else {
             numberOfScopingAnnotationsOnElement++;
-            break;
           }
-        // fall through if abstract
+          break;
+        case INTERFACE: // only valid in java 7 and above
+          if (!isSuppressed(element, SCOPE_ANNOTATION_ON_INTERFACE_OR_ABSTRACT_CLASS)) {
+            error("Scoping annotations are not allowed on interfaces: "
+                + elementToString(element), element);
+          }
+          break;
         default:
+          if (!isSuppressed(element, SCOPING_ANNOTATION_NOT_ON_METHOD_OR_CLASS))
           error("Scoping annotations are only allowed on concrete types and methods: "
               + elementToString(element), element);
       }

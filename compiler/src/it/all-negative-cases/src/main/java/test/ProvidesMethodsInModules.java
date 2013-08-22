@@ -23,9 +23,12 @@ import com.google.inject.Module;
 
 import com.google.inject.AbstractModule;
 
+import com.google.gwt.inject.client.GinModule;
+import com.google.gwt.inject.client.binder.GinBinder;
+
 public class ProvidesMethodsInModules {
 
-  class TestModule1 extends AbstractModule {
+  class GuiceModule1 extends AbstractModule {
     @Provides
     String providesString() {
       return "string";
@@ -35,7 +38,7 @@ public class ProvidesMethodsInModules {
     protected void configure() {}
   }
 
-  class TestModule2 implements Module {
+  class GuiceModule2 implements Module {
     @Provides
     String providesString() {
       return "string";
@@ -43,5 +46,15 @@ public class ProvidesMethodsInModules {
 
     @Override
     public void configure(Binder binder) {}
+  }
+  
+  class GinModule1 implements GinModule {
+    @Provides
+    String providesString() {
+      return "string";
+    }
+    
+    @Override
+    public void configure(GinBinder binder) {}
   }
 }
